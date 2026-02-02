@@ -42,3 +42,15 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.blog-img {
+  width: 100%;
+  height: 180px;
+
+  object-fit: cover;
+  border-radius: 6px;
+
+  margin-bottom: 10px;
+}
+</style>
