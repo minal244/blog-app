@@ -6,10 +6,11 @@
     <form @submit.prevent="login">
 
       <!-- Email -->
-      <input
+      <FormInput
         v-model="email"
-        type="email"
         placeholder="Email"
+        type="email"
+        :validation="$v.email"
       />
 
       <div v-if="$v.email.$error" class="error">
@@ -22,11 +23,20 @@
       </div>
 
       <!-- Password -->
-      <input
-        v-model="password"
-        type="password"
-        placeholder="Password"
-      />
+      <div class="password-field">
+        <input
+          :type="showPassword ? 'text' : 'password'"
+          v-model="password"
+          placeholder="Password"
+        />
+
+        <span
+          class="toggle"
+          @click="showPassword = !showPassword"
+        >
+          {{ showPassword ? 'Hide' : 'Show' }}
+        </span>
+      </div>
 
       <div v-if="$v.password.$error" class="error">
         <span v-if="!$v.password.required">
@@ -65,6 +75,7 @@ export default {
     return {
       email: '',
       password: '',
+      showPassword: false,
       loading: false 
     }
   },
@@ -156,5 +167,17 @@ a {
   color: red;
   font-size: 13px;
   margin-bottom: 10px;
+}
+.password-field {
+  position: relative;
+}
+
+.toggle {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #4ca1af;
 }
 </style>

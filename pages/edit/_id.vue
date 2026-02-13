@@ -36,9 +36,11 @@ export default {
   },
 
   mounted() {
+
     const id = this.$route.params.id
 
     const posts = JSON.parse(localStorage.getItem('posts')) || []
+
     const user = JSON.parse(localStorage.getItem('user'))
 
     const myPosts = posts.filter(p => p.email === user.email)
@@ -46,12 +48,12 @@ export default {
     const post = myPosts[id]
 
     if (!post) {
-      return this.$router.push('/dashboard')
+      this.$toast.error('Invalid blog ID')
+      return this.$router.replace('/dashboard')
     }
 
     this.title = post.title
     this.content = post.content
-    this.postIndex = id
   },
 
   methods: {

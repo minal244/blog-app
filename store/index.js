@@ -16,17 +16,21 @@ export const mutations = {
 
 export const actions = {
 
+  nuxtServerInit({ commit }, { req }) {
+
+    if (process.client) {
+      const user = localStorage.getItem('user')
+
+      if (user) {
+        commit('setUser', JSON.parse(user))
+      }
+    }
+
+  },
+
   login({ commit }, user) {
     localStorage.setItem('user', JSON.stringify(user))
     commit('setUser', user)
-  },
-
-  loadUser({ commit }) {
-    const user = localStorage.getItem('user')
-
-    if (user) {
-      commit('setUser', JSON.parse(user))
-    }
   },
 
   logout({ commit }) {
@@ -35,3 +39,4 @@ export const actions = {
   }
 
 }
+
