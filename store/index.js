@@ -16,6 +16,18 @@ export const mutations = {
 
 export const actions = {
 
+  // Runs before middleware
+  nuxtServerInit({ commit }, { req }) {
+
+    // Only run on client
+    if (process.client) {
+      const user = localStorage.getItem('user')
+      if (user) {
+        commit('setUser', JSON.parse(user))
+      }
+    }
+  },
+
   login({ commit }, user) {
     localStorage.setItem('user', JSON.stringify(user))
     commit('setUser', user)
@@ -24,15 +36,6 @@ export const actions = {
   logout({ commit }) {
     localStorage.removeItem('user')
     commit('clearUser')
-  },
-
-  initAuth({ commit }) {
-    if (process.client) {
-      const user = localStorage.getItem('user')
-      if (user) {
-        commit('setUser', JSON.parse(user))
-      }
-    }
   }
 
 }

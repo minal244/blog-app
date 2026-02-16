@@ -31,8 +31,7 @@ export default {
   */
   plugins: [
     '~/plugins/vuelidate.js',
-    { src: '~/plugins/toast.client.js', mode: 'client' },
-    { src: '~/plugins/init.client.js', mode: 'client' }
+    { src: '~/plugins/toast.client.js', mode: 'client' }
   ],
 
   /*
