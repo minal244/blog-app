@@ -1,185 +1,81 @@
 <template>
-  <div>
+  <div class="auth-box">
 
-    <h2>Register</h2>
+    <h1>Register</h1>
 
-    <form @submit.prevent="register">
+    <form @submit.prevent="handleRegister">
 
-      <!-- Name -->
       <input v-model="name" placeholder="Name" />
+      <FormError :validation="$v.name" />
 
-      <div v-if="$v.name.$error" class="error">
-        Name is required
-      </div>
+      <input v-model="email" placeholder="Email" />
+      <FormError :validation="$v.email" />
 
-      <!-- Email -->
-      <FormInput
-        v-model="email"
-        placeholder="Email"
-        type="email"
-        :validation="$v.email"
+      <PasswordInput
+        v-model="password"
+        placeholder="Password"
       />
+      <FormError :validation="$v.password" />
 
-      <div v-if="$v.email.$error" class="error">
-        Invalid email
-      </div>
-
-      <!-- Password -->
-      <div class="password-field">
-        <input
-          :type="showPassword ? 'text' : 'password'"
-          v-model="password"
-          placeholder="Password"
-        />
-
-        <span
-          class="toggle"
-          @click="showPassword = !showPassword"
-        >
-          {{ showPassword ? 'Hide' : 'Show' }}
-        </span>
-      </div>
-
-
-      <div v-if="$v.password.$error" class="error">
-        Minimum 6 characters
-      </div>
-
-      <!-- Strength -->
-    <div class="strength">
-
-      <span>Password Strength:</span>
-
-      <b :class="strengthClass">
-        {{ passwordStrength }}
-      </b>
-
-      <div class="bar">
-        <div
-          class="fill"
-          :style="{ width: barWidth }"
-          :class="strengthClass"
-        ></div>
-      </div>
-
-    </div>
-
-
-      <!-- Confirm -->
-      <input
+      <PasswordInput
         v-model="confirmPassword"
-        type="password"
         placeholder="Confirm Password"
       />
+      <FormError :validation="$v.confirmPassword" />
 
-      <div v-if="$v.confirmPassword.$error" class="error">
-        Passwords do not match
-      </div>
-
-      <button type="submit">
+      <button>
         Register
       </button>
 
-    </form>
-    <br>
+      <nuxt-link to="/login">
+        Already have account?
+      </nuxt-link>
 
-    <nuxt-link to="/login">
-      Already have account? Login
-    </nuxt-link>
+    </form>
 
   </div>
 </template>
 
 <script>
-import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
-import zxcvbn from 'zxcvbn'
+import { required, email, sameAs } from 'vuelidate/lib/validators'
+import FormError from '~/components/FormError.vue'
+import PasswordInput from '~/components/PasswordInput.vue'
 
 export default {
 
   layout: 'auth',
+
+  components: { FormError, PasswordInput },
 
   data() {
     return {
       name: '',
       email: '',
       password: '',
-      confirmPassword: '',
-      showPassword: false
+      confirmPassword: ''
     }
   },
 
   validations: {
-
     name: { required },
-
-    email: {
-      required,
-      email
-    },
-
-    password: {
-      required,
-      minLength: minLength(6)
-    },
-
+    email: { required, email },
+    password: { required },
     confirmPassword: {
       required,
       sameAsPassword: sameAs('password')
-    }
-
-  },
-
-  computed: {
-
-    passwordScore() {
-      if (!this.password) return 0
-      return zxcvbn(this.password).score
-    },
-
-    passwordStrength() {
-      const levels = [
-        'Very Weak',
-        'Weak',
-        'Okay',
-        'Good',
-        'Strong'
-      ]
-
-      return levels[this.passwordScore]
-    },
-    strengthClass() {
-      return {
-        weak: this.passwordScore < 2,
-        medium: this.passwordScore === 2,
-        strong: this.passwordScore > 2
-      }
-    },
-
-    barWidth() {
-      return (this.passwordScore + 1) * 20 + '%'
     }
   },
 
   methods: {
 
-    register() {
+    handleRegister() {
 
       this.$v.$touch()
-
       if (this.$v.$invalid) return
-
-      if (this.passwordScore < 2) {
-        this.$toast.error('Password is too weak')
-        return
-      }
 
       let users = JSON.parse(localStorage.getItem('users')) || []
 
-      const exists = users.find(
-        u => u.email === this.email
-      )
-
-      if (exists) {
+      if (users.find(u => u.email === this.email)) {
         this.$toast.warning('User already exists')
         return
       }
@@ -192,14 +88,11 @@ export default {
 
       users.push(newUser)
 
-      localStorage.setItem(
-        'users',
-        JSON.stringify(users)
-      )
-
-      this.$toast.success('Account created')
+      localStorage.setItem('users', JSON.stringify(users))
 
       this.$store.dispatch('login', newUser)
+
+      this.$toast.success('Account created')
 
       this.$router.push('/dashboard')
     }
@@ -208,90 +101,3 @@ export default {
 
 }
 </script>
-
-
-<style scoped>
-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-button {
-  width: 100%;
-  padding: 10px;
-
-  background: #2c3e50;
-  color: white;
-
-  border: none;
-  border-radius: 5px;
-
-  cursor: pointer;
-}
-
-button:hover {
-  background: #1a252f;
-}
-
-a {
-  color: #4ca1af;
-  font-weight: bold;
-}
-
-.error {
-  color: red;
-  font-size: 13px;
-  margin-bottom: 10px;
-}
-
-.strength {
-  margin: 10px 0;
-  font-size: 14px;
-}
-
-.bar {
-  width: 100%;
-  height: 6px;
-  background: #ddd;
-  border-radius: 4px;
-  margin-top: 5px;
-  overflow: hidden;
-}
-
-.fill {
-  height: 100%;
-  transition: all 0.3s;
-}
-
-.weak {
-  color: red;
-  background: red;
-}
-
-.medium {
-  color: orange;
-  background: orange;
-}
-
-.strong {
-  color: green;
-  background: green;
-}
-
-.password-field {
-  position: relative;
-}
-
-.toggle {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  cursor: pointer;
-  font-size: 12px;
-  color: #4ca1af;
-}
-</style>

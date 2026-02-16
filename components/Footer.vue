@@ -1,14 +1,14 @@
 <template>
   <footer class="footer">
-    <p>© 2026 NuxtBlog | Built by You</p>
+    © 2026 NuxtBlog
   </footer>
 </template>
 
 <style scoped>
 .footer {
   text-align: center;
-  padding: 15px;
-  background: #f2f2f2;
+  padding: 20px;
+  background: #f3f4f6;
   margin-top: 40px;
 }
 </style>

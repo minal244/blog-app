@@ -8,7 +8,7 @@ export const mutations = {
     state.user = user
   },
 
-  logout(state) {
+  clearUser(state) {
     state.user = null
   }
 
@@ -16,16 +16,16 @@ export const mutations = {
 
 export const actions = {
 
+  // Runs before middleware
   nuxtServerInit({ commit }, { req }) {
 
+    // Only run on client
     if (process.client) {
       const user = localStorage.getItem('user')
-
       if (user) {
         commit('setUser', JSON.parse(user))
       }
     }
-
   },
 
   login({ commit }, user) {
@@ -35,8 +35,7 @@ export const actions = {
 
   logout({ commit }) {
     localStorage.removeItem('user')
-    commit('logout')
+    commit('clearUser')
   }
 
 }
-

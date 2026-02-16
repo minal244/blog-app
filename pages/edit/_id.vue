@@ -1,37 +1,29 @@
 <template>
-  <div class="form-box">
+  <div>
 
-    <h1 class="page-title">Edit Blog</h1>
+    <h1>Edit Blog</h1>
 
-    <div class="card">
+    <form @submit.prevent="updatePost">
 
-      <form @submit.prevent="updatePost">
+      <input v-model="title" />
+      <textarea v-model="content"></textarea>
 
-        <input v-model="title" required />
+      <button>Update</button>
 
-        <textarea v-model="content"></textarea>
-
-        <button class="btn btn-dark">
-          Update Blog
-        </button>
-
-      </form>
-
-    </div>
+    </form>
 
   </div>
 </template>
 
-
 <script>
 export default {
+
   middleware: 'auth',
 
   data() {
     return {
       title: '',
-      content: '',
-      postIndex: null
+      content: ''
     }
   },
 
@@ -41,11 +33,7 @@ export default {
 
     const posts = JSON.parse(localStorage.getItem('posts')) || []
 
-    const user = JSON.parse(localStorage.getItem('user'))
-
-    const myPosts = posts.filter(p => p.email === user.email)
-
-    const post = myPosts[id]
+    const post = posts[id]
 
     if (!post) {
       this.$toast.error('Invalid blog ID')
@@ -57,25 +45,22 @@ export default {
   },
 
   methods: {
+
     updatePost() {
+
+      const id = this.$route.params.id
+
       let posts = JSON.parse(localStorage.getItem('posts')) || []
-      const user = JSON.parse(localStorage.getItem('user'))
 
-      let myPosts = posts.filter(p => p.email === user.email)
-
-      const oldPost = myPosts[this.postIndex]
-
-      // update main array
-      const index = posts.findIndex(p => p === oldPost)
-
-      posts[index].title = this.title
-      posts[index].content = this.content
-      posts[index].date = new Date().toLocaleString()
+      posts[id].title = this.title
+      posts[id].content = this.content
 
       localStorage.setItem('posts', JSON.stringify(posts))
 
       this.$router.push('/dashboard')
     }
+
   }
+
 }
 </script>
