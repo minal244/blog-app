@@ -30,8 +30,13 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '~/plugins/vuelidate.js',
-    { src: '~/plugins/toast.client.js', mode: 'client' }
+    '~/plugins/axios.js',
+    { src: '~/plugins/toast.client.js', mode: 'client' },
+    '~/plugins/vuelidate.js'
+  ],
+
+  serverMiddleware: [
+    { path: '/api', handler: '~/serverMiddleware/api.js' }
   ],
 
   /*
@@ -42,8 +47,12 @@ export default {
   /*
   ** Nuxt.js modules
   */
-  modules: [
-  ],
+  modules: ['@nuxtjs/axios'],
+
+  axios: {
+    baseURL: 'http://localhost:3000/api'
+  },
+
   /*
   ** Build configuration
   */

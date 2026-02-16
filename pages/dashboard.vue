@@ -1,20 +1,32 @@
 <template>
-  <div>
+  <div class="container">
 
-    <h1>Dashboard</h1>
+    <div class="dashboard-header">
 
-    <div class="actions">
-      <nuxt-link to="/create">Create Blog</nuxt-link>
-      <nuxt-link to="/view">All Blogs</nuxt-link>
+      <div>
+        <h1>My Dashboard</h1>
+        <p class="subtitle">
+          Manage and edit your blogs
+        </p>
+      </div>
+
+      <nuxt-link to="/create" class="create-btn">
+        + Create Blog
+      </nuxt-link>
+
+    </div>
+
+    <div v-if="myPosts.length === 0" class="empty-state">
+      <p>No blogs yet.</p>
+      <nuxt-link to="/create">Create your first blog →</nuxt-link>
     </div>
 
     <BlogCard
-      v-for="(post, i) in myPosts"
-      :key="i"
+      v-for="post in myPosts"
+      :key="post.id"
       :post="post"
       :editable="true"
-      @edit="editPost(i)"
-      @delete="deletePost(i)"
+      @delete="deletePost(post.id)"
     />
 
   </div>
@@ -26,40 +38,78 @@ import BlogCard from '~/components/BlogCard.vue'
 export default {
 
   middleware: 'auth',
-
   components: { BlogCard },
 
+  data() {
+    return {
+      posts: []
+    }
+  },
+
+  async mounted() {
+
+    this.$store.dispatch('initAuth')
+
+    const res = await this.$axios.get('/posts')
+    this.posts = res.data
+
+  },
+
   computed: {
-    user() {
-      return this.$store.state.user
-    },
 
     myPosts() {
-      const posts = JSON.parse(localStorage.getItem('posts')) || []
-      return posts.filter(p => p.email === this.user.email)
+      return this.posts.filter(
+        p => p.email === this.$store.state.user?.email
+      )
     }
+
   },
 
   methods: {
 
-    editPost(index) {
-      this.$router.push('/edit/' + index)
-    },
+    async deletePost(id) {
 
-    deletePost(index) {
+      await this.$axios.delete(`/posts/${id}`)
 
-      if (!confirm('Delete this blog?')) return
+      this.posts = this.posts.filter(p => p.id !== id)
 
-      let posts = JSON.parse(localStorage.getItem('posts')) || []
+      this.$toast.success('Blog deleted')
 
-      posts.splice(index, 1)
-
-      localStorage.setItem('posts', JSON.stringify(posts))
-
-      this.$toast.success('Deleted')
     }
 
   }
 
 }
 </script>
+
+<style scoped>
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.create-btn {
+  background: #4f46e5;
+  padding: 10px 18px;
+  border-radius: 6px;
+  color: white;
+  font-weight: 500;
+}
+
+.create-btn:hover {
+  background: #4338ca;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 0;
+  color: #6b7280;
+}
+</style>

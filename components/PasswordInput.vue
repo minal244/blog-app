@@ -1,19 +1,15 @@
 <template>
-  <div class="password-wrapper">
+  <div class="password-input">
 
     <input
-      :type="visible ? 'text' : 'password'"
+      :type="show ? 'text' : 'password'"
+      :placeholder="placeholder"
       :value="value"
       @input="$emit('input', $event.target.value)"
-      :placeholder="placeholder"
     />
 
-    <button
-      type="button"
-      class="toggle"
-      @click="visible = !visible"
-    >
-      {{ visible ? 'Hide' : 'Show' }}
+    <button type="button" @click="toggle">
+      {{ show ? 'Hide' : 'Show' }}
     </button>
 
   </div>
@@ -21,6 +17,7 @@
 
 <script>
 export default {
+
   props: {
     value: String,
     placeholder: String
@@ -28,30 +25,15 @@ export default {
 
   data() {
     return {
-      visible: false
+      show: false
+    }
+  },
+
+  methods: {
+    toggle() {
+      this.show = !this.show
     }
   }
+
 }
 </script>
-
-<style scoped>
-.password-wrapper {
-  position: relative;
-}
-
-input {
-  width: 100%;
-  padding-right: 60px;
-}
-
-.toggle {
-  position: absolute;
-  right: 10px;
-  top: 7px;
-  border: none;
-  background: none;
-  font-size: 12px;
-  cursor: pointer;
-  color: #4ca1af;
-}
-</style>

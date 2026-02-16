@@ -1,41 +1,48 @@
 export const state = () => ({
-  user: null
+  user: null,
+  token: null
 })
 
 export const mutations = {
 
-  setUser(state, user) {
-    state.user = user
+  setAuth(state, payload) {
+    state.user = payload.user
+    state.token = payload.token
   },
 
-  clearUser(state) {
+  clearAuth(state) {
     state.user = null
+    state.token = null
   }
 
 }
 
 export const actions = {
 
-  // Runs before middleware
-  nuxtServerInit({ commit }, { req }) {
-
-    // Only run on client
-    if (process.client) {
-      const user = localStorage.getItem('user')
-      if (user) {
-        commit('setUser', JSON.parse(user))
-      }
-    }
-  },
-
-  login({ commit }, user) {
-    localStorage.setItem('user', JSON.stringify(user))
-    commit('setUser', user)
+  login({ commit }, data) {
+    localStorage.setItem('token', data.token)
+    localStorage.setItem('user', JSON.stringify(data.user))
+    commit('setAuth', data)
   },
 
   logout({ commit }) {
+    localStorage.removeItem('token')
     localStorage.removeItem('user')
-    commit('clearUser')
+    commit('clearAuth')
+  },
+
+  initAuth({ commit }) {
+    if (process.client) {
+      const token = localStorage.getItem('token')
+      const user = localStorage.getItem('user')
+
+      if (token && user) {
+        commit('setAuth', {
+          token,
+          user: JSON.parse(user)
+        })
+      }
+    }
   }
 
 }

@@ -5,9 +5,9 @@
 <script>
 export default {
   mounted() {
-    const user = this.$store.state.user
+    const token = localStorage.getItem('token')
 
-    if (user) {
+    if (token) {
       this.$router.replace('/dashboard')
     } else {
       this.$router.replace('/login')

@@ -4,8 +4,8 @@
     <h1>All Blogs</h1>
 
     <BlogCard
-      v-for="(post, i) in posts"
-      :key="i"
+      v-for="post in posts"
+      :key="post.id"
       :post="post"
     />
 
@@ -17,14 +17,25 @@ import BlogCard from '~/components/BlogCard.vue'
 
 export default {
 
-  middleware: 'auth',
-
   components: { BlogCard },
 
-  computed: {
-    posts() {
-      return JSON.parse(localStorage.getItem('posts')) || []
+  data() {
+    return {
+      posts: []
     }
+  },
+
+  async mounted() {
+
+    try {
+
+      const res = await this.$axios.get('/posts')
+      this.posts = res.data
+
+    } catch {
+      this.$toast.error('Failed to load posts')
+    }
+
   }
 
 }

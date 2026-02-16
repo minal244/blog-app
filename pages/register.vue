@@ -5,25 +5,15 @@
 
     <form @submit.prevent="handleRegister">
 
-      <input v-model="name" placeholder="Name" />
-      <FormError :validation="$v.name" />
-
-      <input v-model="email" placeholder="Email" />
-      <FormError :validation="$v.email" />
+      <input v-model="name" placeholder="Name" required />
+      <input v-model="email" type="email" placeholder="Email" required />
 
       <PasswordInput
         v-model="password"
         placeholder="Password"
       />
-      <FormError :validation="$v.password" />
 
-      <PasswordInput
-        v-model="confirmPassword"
-        placeholder="Confirm Password"
-      />
-      <FormError :validation="$v.confirmPassword" />
-
-      <button>
+      <button type="submit">
         Register
       </button>
 
@@ -37,64 +27,42 @@
 </template>
 
 <script>
-import { required, email, sameAs } from 'vuelidate/lib/validators'
-import FormError from '~/components/FormError.vue'
 import PasswordInput from '~/components/PasswordInput.vue'
 
 export default {
 
   layout: 'auth',
-
-  components: { FormError, PasswordInput },
+  middleware: 'guest',
+  components: { PasswordInput },
 
   data() {
     return {
       name: '',
       email: '',
-      password: '',
-      confirmPassword: ''
-    }
-  },
-
-  validations: {
-    name: { required },
-    email: { required, email },
-    password: { required },
-    confirmPassword: {
-      required,
-      sameAsPassword: sameAs('password')
+      password: ''
     }
   },
 
   methods: {
 
-    handleRegister() {
+    async handleRegister() {
 
-      this.$v.$touch()
-      if (this.$v.$invalid) return
+      try {
 
-      let users = JSON.parse(localStorage.getItem('users')) || []
+        await this.$axios.post('/auth/register', {
+          name: this.name,
+          email: this.email,
+          password: this.password
+        })
 
-      if (users.find(u => u.email === this.email)) {
-        this.$toast.warning('User already exists')
-        return
+        this.$toast.success('Account created')
+
+        this.$router.push('/login')
+
+      } catch {
+        this.$toast.error('User already exists')
       }
 
-      const newUser = {
-        name: this.name,
-        email: this.email,
-        password: this.password
-      }
-
-      users.push(newUser)
-
-      localStorage.setItem('users', JSON.stringify(users))
-
-      this.$store.dispatch('login', newUser)
-
-      this.$toast.success('Account created')
-
-      this.$router.push('/dashboard')
     }
 
   }
