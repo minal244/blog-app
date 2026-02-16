@@ -13,9 +13,9 @@
         <nuxt-link to="/view">Blogs</nuxt-link>
         <nuxt-link to="/profile">Profile</nuxt-link>
 
-        <a href="#" @click.prevent="logout">
+        <button @click="logout">
           Logout
-        </a>
+        </button>
 
       </template>
 
@@ -50,37 +50,22 @@ export default {
 }
 </script>
 
-
 <style scoped>
 .nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   background: #1f2937;
   color: white;
-
-  padding: 15px 40px;
+  padding: 15px 30px;
 }
 
-.nav h2 {
-  margin: 0;
-}
-
-.links {
-  display: flex;
-  align-items: center;
-}
-
-.links a {
+.links a,
+.links button {
+  margin-left: 15px;
   color: white;
-  margin-left: 20px;
-
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.links a:hover {
-  color: #4ca1af;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 </style>

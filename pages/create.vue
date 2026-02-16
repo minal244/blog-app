@@ -1,44 +1,21 @@
 <template>
-  <div class="form-box">
+  <div>
 
-    <h1 class="page-title">Create Blog</h1>
+    <h1>Create Blog</h1>
 
-    <div class="card">
+    <form @submit.prevent="submitPost">
 
-      <form @submit.prevent="submitPost">
+      <input v-model="title" placeholder="Title" />
 
-        <!-- Title -->
-        <input
-          v-model="title"
-          placeholder="Enter title"
-          required
-        />
+      <input type="file" accept="image/*" @change="handleImage" />
 
-        <!-- Image Upload -->
-        <input
-          type="file"
-          accept="image/*"
-          @change="handleImage"
-        />
+      <img v-if="preview" :src="preview" class="preview" />
 
-        <!-- Preview -->
-        <div v-if="preview" class="preview">
-          <img :src="preview" />
-        </div>
+      <textarea v-model="content" placeholder="Content"></textarea>
 
-        <!-- Content -->
-        <textarea
-          v-model="content"
-          placeholder="Write your blog..."
-        ></textarea>
+      <button>Publish</button>
 
-        <button class="btn btn-dark">
-          Publish
-        </button>
-
-      </form>
-
-    </div>
+    </form>
 
   </div>
 </template>
@@ -60,15 +37,8 @@ export default {
   methods: {
 
     handleImage(e) {
-
       const file = e.target.files[0]
-
       if (!file) return
-
-      if (!file.type.startsWith('image/')) {
-        this.$toast.error('Only images allowed')
-        return
-      }
 
       const reader = new FileReader()
 
@@ -82,18 +52,9 @@ export default {
 
     submitPost() {
 
-      if (!this.title || !this.content) {
-        this.$toast.error('Fill all fields')
-        return
-      }
+      const user = this.$store.state.user
 
-      let posts = JSON.parse(
-        localStorage.getItem('posts')
-      ) || []
-
-      const user = JSON.parse(
-        localStorage.getItem('user')
-      )
+      let posts = JSON.parse(localStorage.getItem('posts')) || []
 
       posts.push({
         title: this.title,
@@ -104,12 +65,7 @@ export default {
         date: new Date().toLocaleString()
       })
 
-      localStorage.setItem(
-        'posts',
-        JSON.stringify(posts)
-      )
-
-      this.$toast.success('Blog published')
+      localStorage.setItem('posts', JSON.stringify(posts))
 
       this.$router.push('/dashboard')
     }
@@ -118,17 +74,3 @@ export default {
 
 }
 </script>
-
-<style scoped>
-.preview {
-  margin: 10px 0;
-}
-
-.preview img {
-  max-width: 100%;
-  max-height: 200px;
-
-  border-radius: 6px;
-  object-fit: cover;
-}
-</style>

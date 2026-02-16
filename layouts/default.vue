@@ -1,5 +1,6 @@
 <template>
   <div>
+
     <Navbar />
 
     <main class="container">
@@ -7,6 +8,7 @@
     </main>
 
     <Footer />
+
   </div>
 </template>
 
@@ -18,20 +20,15 @@ export default {
   components: {
     Navbar,
     Footer
-  },
-
-  mounted() {
-    this.$store.dispatch('loadUser')
   }
 }
-
 </script>
 
 <style>
 .container {
   max-width: 900px;
   margin: auto;
-  padding: 20px;
+  padding: 30px 20px;
   min-height: 80vh;
 }
 </style>

@@ -1,56 +1,31 @@
 <template>
   <div>
 
-    <h1 class="page-title">All Blogs</h1>
+    <h1>All Blogs</h1>
 
-    <div
+    <BlogCard
       v-for="(post, i) in posts"
       :key="i"
-      class="card"
-    >
-      <img
-        v-if="post.image"
-        :src="post.image"
-        class="blog-img"
-      />
-      <h3>{{ post.title }}</h3>
-
-      <small>
-        By {{ post.author }} | {{ post.date }}
-      </small>
-
-      <p>{{ post.content }}</p>
-
-    </div>
+      :post="post"
+    />
 
   </div>
 </template>
 
-
 <script>
+import BlogCard from '~/components/BlogCard.vue'
+
 export default {
+
   middleware: 'auth',
 
-  data() {
-    return {
-      posts: []
-    }
-  },
+  components: { BlogCard },
 
-  mounted() {
-    this.posts = JSON.parse(localStorage.getItem('posts')) || []
+  computed: {
+    posts() {
+      return JSON.parse(localStorage.getItem('posts')) || []
+    }
   }
+
 }
 </script>
-
-<style scoped>
-.blog-img {
-  width: 100%;
-  height: 180px;
-
-  object-fit: cover;
-  border-radius: 6px;
-
-  margin-bottom: 10px;
-}
-</style>

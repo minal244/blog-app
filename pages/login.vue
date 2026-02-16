@@ -1,63 +1,32 @@
 <template>
-  <div class="login">
+  <div class="auth-box">
 
-    <h2>Login</h2>
+    <h1>Login</h1>
 
-    <form @submit.prevent="login">
+    <form @submit.prevent="handleLogin">
 
-      <!-- Email -->
-      <FormInput
+      <input
         v-model="email"
         placeholder="Email"
         type="email"
-        :validation="$v.email"
       />
 
-      <div v-if="$v.email.$error" class="error">
-        <span v-if="!$v.email.required">
-          Email is required
-        </span>
-        <span v-if="!$v.email.email">
-          Invalid email format
-        </span>
-      </div>
+      <FormError :validation="$v.email" />
 
-      <!-- Password -->
-      <div class="password-field">
-        <input
-          :type="showPassword ? 'text' : 'password'"
-          v-model="password"
-          placeholder="Password"
-        />
+      <PasswordInput
+        v-model="password"
+        placeholder="Password"
+      />
 
-        <span
-          class="toggle"
-          @click="showPassword = !showPassword"
-        >
-          {{ showPassword ? 'Hide' : 'Show' }}
-        </span>
-      </div>
+      <FormError :validation="$v.password" />
 
-      <div v-if="$v.password.$error" class="error">
-        <span v-if="!$v.password.required">
-          Password is required
-        </span>
-        <span v-if="!$v.password.minLength">
-          Minimum 6 characters
-        </span>
-      </div>
+      <button :disabled="loading">
+        {{ loading ? 'Logging in...' : 'Login' }}
+      </button>
 
       <nuxt-link to="/register">
         Create Account
       </nuxt-link>
-
-      <button type="submit" :disabled="loading">
-
-        <span v-if="!loading">Login</span>
-        <span v-else>Logging in...</span>
-
-      </button>
-
 
     </form>
 
@@ -65,40 +34,34 @@
 </template>
 
 <script>
-import { required, email, minLength } from 'vuelidate/lib/validators'
+import { required, email } from 'vuelidate/lib/validators'
+import FormError from '~/components/FormError.vue'
+import PasswordInput from '~/components/PasswordInput.vue'
 
 export default {
 
   layout: 'auth',
 
+  components: { FormError, PasswordInput },
+
   data() {
     return {
       email: '',
       password: '',
-      showPassword: false,
-      loading: false 
+      loading: false
     }
   },
 
   validations: {
-
-    email: {
-      required,
-      email
-    },
-
-    password: {
-      required,
-      minLength: minLength(6)
-    }
+    email: { required, email },
+    password: { required }
   },
 
   methods: {
 
-    async login() {
+    handleLogin() {
 
       this.$v.$touch()
-
       if (this.$v.$invalid) return
 
       this.loading = true
@@ -109,7 +72,7 @@ export default {
 
         const user = users.find(
           u => u.email === this.email &&
-              u.password === this.password
+               u.password === this.password
         )
 
         if (!user) {
@@ -124,60 +87,10 @@ export default {
 
         this.$router.push('/dashboard')
 
-      }, 800) // fake delay
+      }, 800)
     }
+
   }
 
 }
 </script>
-
-<style scoped>
-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-button {
-  width: 100%;
-  padding: 10px;
-
-  background: #2c3e50;
-  color: white;
-
-  border: none;
-  border-radius: 5px;
-
-  cursor: pointer;
-}
-
-button:hover {
-  background: #1a252f;
-}
-
-a {
-  color: #4ca1af;
-  font-weight: bold;
-}
-
-.error {
-  color: red;
-  font-size: 13px;
-  margin-bottom: 10px;
-}
-.password-field {
-  position: relative;
-}
-
-.toggle {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  cursor: pointer;
-  font-size: 12px;
-  color: #4ca1af;
-}
-</style>

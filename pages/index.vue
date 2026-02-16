@@ -5,14 +5,12 @@
 <script>
 export default {
   mounted() {
-    const user = localStorage.getItem('user')
+    const user = this.$store.state.user
 
     if (user) {
-      // Already logged in
-      this.$router.push('/dashboard')
+      this.$router.replace('/dashboard')
     } else {
-      // Not logged in
-      this.$router.push('/login')
+      this.$router.replace('/login')
     }
   }
 }
