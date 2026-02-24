@@ -1,30 +1,30 @@
 <template>
-  <nav class="nav">
+  <nav class="navbar">
 
-    <h2>NuxtBlog</h2>
+    <div class="nav-container">
 
-    <div class="links">
+      <nuxt-link to="/" class="logo">
+        NuxtBlog
+      </nuxt-link>
 
-      <nuxt-link to="/">Home</nuxt-link>
+      <div class="links">
 
-      <template v-if="user">
-
-        <nuxt-link to="/dashboard">Dashboard</nuxt-link>
         <nuxt-link to="/view">Blogs</nuxt-link>
-        <nuxt-link to="/profile">Profile</nuxt-link>
 
-        <button @click="logout">
-          Logout
-        </button>
+        <template v-if="isAuthenticated">
+          <nuxt-link to="/dashboard">Dashboard</nuxt-link>
+          <nuxt-link to="/profile">Profile</nuxt-link>
+          <button class="logout-btn" @click="logout">
+            Logout
+          </button>
+        </template>
 
-      </template>
+        <template v-else>
+          <nuxt-link to="/login">Login</nuxt-link>
+          <nuxt-link to="/register">Register</nuxt-link>
+        </template>
 
-      <template v-else>
-
-        <nuxt-link to="/login">Login</nuxt-link>
-        <nuxt-link to="/register">Register</nuxt-link>
-
-      </template>
+      </div>
 
     </div>
 
@@ -35,8 +35,8 @@
 export default {
 
   computed: {
-    user() {
-      return this.$store.state.user
+    isAuthenticated() {
+      return !!this.$store.state.token
     }
   },
 
@@ -51,21 +51,38 @@ export default {
 </script>
 
 <style scoped>
-.nav {
+.navbar {
+  background: white;
+  padding: 15px 30px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.nav-container {
+  max-width: 1100px;
+  margin: auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #1f2937;
-  color: white;
-  padding: 15px 30px;
 }
 
-.links a,
-.links button {
-  margin-left: 15px;
-  color: white;
-  background: none;
-  border: none;
-  cursor: pointer;
+.logo {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.logout-btn {
+  background: #ef4444;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
 }
 </style>

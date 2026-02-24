@@ -1,10 +1,9 @@
 <template>
   <div>
 
-    <h1>Profile Settings</h1>
+    <h1>Profile</h1>
 
     <ProfileForm />
-
     <ChangePassword />
 
   </div>

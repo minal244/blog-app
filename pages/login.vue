@@ -7,21 +7,18 @@
 
       <input
         v-model="email"
-        placeholder="Email"
         type="email"
+        placeholder="Email"
+        required
       />
-
-      <FormError :validation="$v.email" />
 
       <PasswordInput
         v-model="password"
         placeholder="Password"
       />
 
-      <FormError :validation="$v.password" />
-
-      <button :disabled="loading">
-        {{ loading ? 'Logging in...' : 'Login' }}
+      <button type="submit">
+        Login
       </button>
 
       <nuxt-link to="/register">
@@ -34,60 +31,42 @@
 </template>
 
 <script>
-import { required, email } from 'vuelidate/lib/validators'
-import FormError from '~/components/FormError.vue'
 import PasswordInput from '~/components/PasswordInput.vue'
 
 export default {
 
   layout: 'auth',
-
-  components: { FormError, PasswordInput },
+  middleware: 'guest',
+  components: { PasswordInput },
 
   data() {
     return {
       email: '',
-      password: '',
-      loading: false
+      password: ''
     }
-  },
-
-  validations: {
-    email: { required, email },
-    password: { required }
   },
 
   methods: {
 
-    handleLogin() {
+    async handleLogin() {
 
-      this.$v.$touch()
-      if (this.$v.$invalid) return
+      try {
 
-      this.loading = true
+        const res = await this.$axios.post('/auth/login', {
+          email: this.email,
+          password: this.password
+        })
 
-      setTimeout(() => {
+        this.$store.dispatch('login', res.data)
 
-        let users = JSON.parse(localStorage.getItem('users')) || []
-
-        const user = users.find(
-          u => u.email === this.email &&
-               u.password === this.password
-        )
-
-        if (!user) {
-          this.$toast.error('Invalid credentials')
-          this.loading = false
-          return
-        }
-
-        this.$store.dispatch('login', user)
-
-        this.$toast.success('Welcome back!')
+        this.$toast.success('Welcome back')
 
         this.$router.push('/dashboard')
 
-      }, 800)
+      } catch {
+        this.$toast.error('Invalid credentials')
+      }
+
     }
 
   }

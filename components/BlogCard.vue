@@ -1,37 +1,24 @@
 <template>
   <div class="card">
 
-    <img
-      v-if="post.image"
-      :src="post.image"
-      class="blog-img"
-    />
+    <h2>{{ post.title }}</h2>
 
-    <h3>{{ post.title }}</h3>
+    <p class="meta">
+      By {{ post.email }} • {{ formattedDate }}
+    </p>
 
-    <small>
-      By {{ post.author }} |
-      {{ post.date }}
-    </small>
-
-    <p>{{ post.content }}</p>
+    <p class="content">
+      {{ post.content }}
+    </p>
 
     <div v-if="editable" class="actions">
-
-      <button
-        class="btn"
-        @click="$emit('edit')"
-      >
+      <nuxt-link :to="`/edit/${post.id}`">
         Edit
-      </button>
+      </nuxt-link>
 
-      <button
-        class="btn danger"
-        @click="$emit('delete')"
-      >
+      <button @click="$emit('delete')" class="delete">
         Delete
       </button>
-
     </div>
 
   </div>
@@ -39,52 +26,48 @@
 
 <script>
 export default {
+
   props: {
-    post: Object,
+    post: {
+      type: Object,
+      required: true
+    },
     editable: {
       type: Boolean,
       default: false
     }
+  },
+
+  computed: {
+    formattedDate() {
+      return new Date(this.post.created_at).toLocaleString()
+    }
   }
+
 }
 </script>
 
 <style scoped>
-.card {
-  background: white;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.blog-img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 6px;
+.meta {
+  font-size: 12px;
+  color: #6b7280;
   margin-bottom: 10px;
 }
 
+.content {
+  margin-bottom: 15px;
+}
+
 .actions {
-  margin-top: 10px;
+  display: flex;
+  gap: 15px;
 }
 
-.btn {
-  padding: 6px 12px;
-  border: none;
-  background: #4ca1af;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 8px;
+.delete {
+  background: #ef4444;
 }
 
-.btn:hover {
-  opacity: 0.9;
-}
-
-.danger {
-  background: #e74c3c;
+.delete:hover {
+  background: #dc2626;
 }
 </style>

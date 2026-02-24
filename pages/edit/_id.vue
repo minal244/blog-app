@@ -5,10 +5,21 @@
 
     <form @submit.prevent="updatePost">
 
-      <input v-model="title" />
-      <textarea v-model="content"></textarea>
+      <input
+        v-model="title"
+        placeholder="Title"
+        required
+      />
 
-      <button>Update</button>
+      <textarea
+        v-model="content"
+        placeholder="Content"
+        required
+      ></textarea>
+
+      <button type="submit">
+        Update
+      </button>
 
     </form>
 
@@ -27,37 +38,44 @@ export default {
     }
   },
 
-  mounted() {
+  async mounted() {
 
     const id = this.$route.params.id
 
-    const posts = JSON.parse(localStorage.getItem('posts')) || []
+    const res = await this.$axios.get('/posts')
 
-    const post = posts[id]
+    const post = res.data.find(p => p.id == id)
 
     if (!post) {
-      this.$toast.error('Invalid blog ID')
-      return this.$router.replace('/dashboard')
+      this.$router.push('/dashboard')
+      return
+    }
+
+    if (post.email !== this.$store.state.user.email) {
+      this.$router.push('/dashboard')
+      return
     }
 
     this.title = post.title
     this.content = post.content
+
   },
 
   methods: {
 
-    updatePost() {
+    async updatePost() {
 
       const id = this.$route.params.id
 
-      let posts = JSON.parse(localStorage.getItem('posts')) || []
+      await this.$axios.put(`/posts/${id}`, {
+        title: this.title,
+        content: this.content
+      })
 
-      posts[id].title = this.title
-      posts[id].content = this.content
-
-      localStorage.setItem('posts', JSON.stringify(posts))
+      this.$toast.success('Updated')
 
       this.$router.push('/dashboard')
+
     }
 
   }

@@ -11,7 +11,16 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@nuxtjs/axios": "^5.13.6",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.6.2",
+    "body-parser": "^2.2.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.2.1",
+    "multer": "^2.0.2",
     "nuxt": "^2.0.0",
+    "sqlite3": "^5.1.7",
     "vue-toastification": "^1.7.14",
     "vuelidate": "^0.7.7",
     "zxcvbn": "^4.4.2"

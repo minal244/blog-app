@@ -1,32 +1,51 @@
 <template>
-  <div class="auth-bg">
+  <div class="auth-layout">
 
-    <div class="auth-card">
-      <Nuxt />
-    </div>
+    <main class="auth-container">
+      <nuxt />
+    </main>
 
   </div>
 </template>
 
-<style>
-.auth-bg {
-  min-height: 100vh;
+<script>
+export default {}
+</script>
+
+<style scoped>
+.auth-layout {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh;
+  background: #f5f6fa;
+}
 
+.auth-container {
+  width: 400px;
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.auth-layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
   background: linear-gradient(
-    to right,
-    #2c3e50,
-    #4ca1af
+    135deg,
+    #4f46e5,
+    #7c3aed
   );
 }
 
-.auth-card {
+.auth-container {
+  width: 400px;
   background: white;
   padding: 40px;
-  width: 380px;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
 }
 </style>

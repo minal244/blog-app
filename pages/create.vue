@@ -1,21 +1,39 @@
 <template>
-  <div>
+  <div class="container">
 
-    <h1>Create Blog</h1>
+    <div class="card">
 
-    <form @submit.prevent="submitPost">
+      <h1>Create New Blog</h1>
 
-      <input v-model="title" placeholder="Title" />
+      <form @submit.prevent="submitPost">
 
-      <input type="file" accept="image/*" @change="handleImage" />
+        <label>Title</label>
+        <input
+          v-model="title"
+          placeholder="Enter blog title"
+          required
+        />
 
-      <img v-if="preview" :src="preview" class="preview" />
+        <label>Content</label>
+        <textarea
+          v-model="content"
+          placeholder="Write your blog content here..."
+          required
+        ></textarea>
 
-      <textarea v-model="content" placeholder="Content"></textarea>
+        <div class="actions">
+          <nuxt-link to="/dashboard" class="secondary-btn">
+            Cancel
+          </nuxt-link>
 
-      <button>Publish</button>
+          <button type="submit">
+            Publish
+          </button>
+        </div>
 
-    </form>
+      </form>
+
+    </div>
 
   </div>
 </template>
@@ -28,49 +46,53 @@ export default {
   data() {
     return {
       title: '',
-      content: '',
-      image: null,
-      preview: null
+      content: ''
     }
   },
 
   methods: {
 
-    handleImage(e) {
-      const file = e.target.files[0]
-      if (!file) return
+    async submitPost() {
 
-      const reader = new FileReader()
-
-      reader.onload = () => {
-        this.preview = reader.result
-        this.image = reader.result
-      }
-
-      reader.readAsDataURL(file)
-    },
-
-    submitPost() {
-
-      const user = this.$store.state.user
-
-      let posts = JSON.parse(localStorage.getItem('posts')) || []
-
-      posts.push({
+      await this.$axios.post('/posts', {
         title: this.title,
-        content: this.content,
-        image: this.image,
-        author: user.name,
-        email: user.email,
-        date: new Date().toLocaleString()
+        content: this.content
       })
 
-      localStorage.setItem('posts', JSON.stringify(posts))
+      this.$toast.success('Blog published successfully')
 
       this.$router.push('/dashboard')
+
     }
 
   }
 
 }
 </script>
+
+<style scoped>
+label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 6px;
+  margin-top: 15px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.secondary-btn {
+  background: #e5e7eb;
+  padding: 10px 16px;
+  border-radius: 6px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.secondary-btn:hover {
+  background: #d1d5db;
+}
+</style>
