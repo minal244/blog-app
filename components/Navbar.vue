@@ -4,7 +4,7 @@
     <div class="nav-container">
 
       <nuxt-link to="/" class="logo">
-        NuxtBlog
+        WE Blog
       </nuxt-link>
 
       <div class="links">

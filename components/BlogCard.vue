@@ -4,8 +4,12 @@
     <h2>{{ post.title }}</h2>
 
     <p class="meta">
-      By {{ post.email }} • {{ formattedDate }}
+      By {{ post.username }} • {{ formattedDate }}
     </p>
+
+    <img
+      v-if="post.image" :src="post.image" class="blog-image"
+    />
 
     <p class="content">
       {{ post.content }}
@@ -40,10 +44,19 @@ export default {
 
   computed: {
     formattedDate() {
-      return new Date(this.post.created_at).toLocaleString()
+      const utc = this.post.created_at.replace(' ', 'T') + 'Z'
+
+      return new Date(utc).toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      })
     }
   }
-
 }
 </script>
 
@@ -69,5 +82,13 @@ export default {
 
 .delete:hover {
   background: #dc2626;
+}
+
+.blog-image {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin: 10px 0;
 }
 </style>

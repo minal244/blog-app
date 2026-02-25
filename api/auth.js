@@ -27,14 +27,14 @@ function authMiddleware(req, res, next) {
 // REGISTER
 router.post('/register', async (req, res) => {
 
-  const { name, email, password } = req.body
+  const { username, email, password } = req.body
 
   const hashed = await bcrypt.hash(password, 10)
 
   db.run(
-    `INSERT INTO users (name, email, password)
+    `INSERT INTO users (username, email, password)
      VALUES (?, ?, ?)`,
-    [name, email, hashed],
+    [username, email, hashed],
     function(err) {
 
       if (err) {
@@ -49,11 +49,11 @@ router.post('/register', async (req, res) => {
 // LOGIN
 router.post('/login', (req, res) => {
 
-  const { email, password } = req.body
+  const { username, password } = req.body
 
   db.get(
-    `SELECT * FROM users WHERE email = ?`,
-    [email],
+    `SELECT * FROM users WHERE username = ?`,
+    [username],
     async (err, user) => {
 
       if (!user) {
@@ -67,7 +67,7 @@ router.post('/login', (req, res) => {
       }
 
       const token = jwt.sign(
-        { id: user.id, email: user.email },
+        { id: user.id, username: user.username, email: user.email },
         SECRET,
         { expiresIn: '1d' }
       )
@@ -76,7 +76,7 @@ router.post('/login', (req, res) => {
         token,
         user: {
           id: user.id,
-          name: user.name,
+          username: user.username,
           email: user.email
         }
       })
@@ -88,8 +88,8 @@ router.post('/login', (req, res) => {
 router.put('/update', authMiddleware, (req, res) => {
 
   db.run(
-    `UPDATE users SET name = ? WHERE email = ?`,
-    [req.body.name, req.user.email],
+    `UPDATE users SET username = ? WHERE email = ?`,
+    [req.body.username, req.user.email],
     function(err) {
 
       if (err) {

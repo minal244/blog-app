@@ -3,9 +3,30 @@
 
     <h2>Change Password</h2>
 
-    <form @submit.prevent="change">
+    <form @submit.prevent="updatePassword">
 
-      <PasswordInput v-model="password" />
+      <!-- New Password -->
+      <PasswordInput
+        v-model="password"
+        placeholder="New Password"
+        :visible="showPassword"
+        @blur="$v.password.$touch()"
+      />
+      <FormError :message="getError($v.password)" />
+
+      <!-- Confirm Password -->
+      <PasswordInput
+        v-model="confirmPassword"
+        placeholder="Confirm Password"
+        :visible="showPassword"
+        @blur="$v.confirmPassword.$touch()"
+      />
+      <FormError :message="getError($v.confirmPassword)" />
+
+      <!-- Single Toggle -->
+      <button type="button" @click="showPassword = !showPassword">
+        {{ showPassword ? 'Hide Password' : 'Show Password' }}
+      </button>
 
       <button type="submit">
         Update Password
@@ -17,29 +38,64 @@
 </template>
 
 <script>
-import PasswordInput from './PasswordInput.vue'
+import PasswordInput from '~/components/PasswordInput.vue'
+import FormError from '~/components/FormError.vue'
+
+import { rules } from '~/utils/validations/rules'
+import { getError } from '~/utils/validations/getError'
+import { getAllErrors } from '~/utils/validations/getAllErrors'
 
 export default {
 
-  components: { PasswordInput },
+  components: {
+    PasswordInput,
+    FormError
+  },
 
   data() {
     return {
-      password: ''
+      password: '',
+      confirmPassword: '',
+      showPassword: false
+    }
+  },
+
+  validations() {
+    return {
+      password: rules.password,
+      confirmPassword: rules.confirmPassword(() => this.password)
     }
   },
 
   methods: {
 
-    async change() {
+    getError,
 
-      await this.$axios.put('/auth/change-password', {
-        password: this.password
-      })
+    async updatePassword() {
 
-      this.$toast.success('Password updated')
+      this.$v.$touch()
 
-      this.password = ''
+      if (this.$v.$invalid) {
+        const errors = getAllErrors(this.$v)
+        this.$toast.error(errors[0])
+        return
+      }
+
+      try {
+
+        await this.$axios.put('/auth/change-password', {
+          password: this.password
+        })
+
+        this.$toast.success('Password updated')
+
+        this.password = ''
+        this.confirmPassword = ''
+
+      } catch {
+        this.$toast.error('Error updating password')
+      }
+
     }
 
   }

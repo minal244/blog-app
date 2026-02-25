@@ -59,7 +59,7 @@ export default {
 
     myPosts() {
       return this.posts.filter(
-        p => p.email === this.$store.state.user?.email
+        p => p.username === this.$store.state.user?.username
       )
     }
 

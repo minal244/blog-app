@@ -10,7 +10,7 @@ db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
+      username TEXT UNIQUE,
       email TEXT UNIQUE,
       password TEXT
     )
@@ -23,6 +23,7 @@ db.serialize(() => {
       content TEXT,
       image TEXT,
       email TEXT,
+      username TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `)

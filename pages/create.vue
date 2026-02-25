@@ -1,67 +1,105 @@
 <template>
-  <div class="container">
+  <div>
 
-    <div class="card">
+    <h1>Create Blog</h1>
 
-      <h1>Create New Blog</h1>
+    <form @submit.prevent="submitPost">
 
-      <form @submit.prevent="submitPost">
+      <!-- Title -->
+      <input
+        v-model="title"
+        placeholder="Title"
+        @blur="$v.title.$touch()"
+      />
+      <FormError :message="getError($v.title)" />
 
-        <label>Title</label>
-        <input
-          v-model="title"
-          placeholder="Enter blog title"
-          required
-        />
+      <!-- Content -->
+      <textarea
+        v-model="content"
+        placeholder="Content"
+        @blur="$v.content.$touch()"
+      ></textarea>
+      <FormError :message="getError($v.content)" />
 
-        <label>Content</label>
-        <textarea
-          v-model="content"
-          placeholder="Write your blog content here..."
-          required
-        ></textarea>
+      <!-- Image -->
+      <input type="file" @change="handleFile" />
 
-        <div class="actions">
-          <nuxt-link to="/dashboard" class="secondary-btn">
-            Cancel
-          </nuxt-link>
+      <button type="submit">
+        Publish
+      </button>
 
-          <button type="submit">
-            Publish
-          </button>
-        </div>
-
-      </form>
-
-    </div>
+    </form>
 
   </div>
 </template>
 
 <script>
+import FormError from '~/components/FormError.vue'
+
+import { rules } from '~/utils/validations/rules'
+import { getError } from '~/utils/validations/getError'
+import { getAllErrors } from '~/utils/validations/getAllErrors'
+
 export default {
 
   middleware: 'auth',
 
+  components: {
+    FormError
+  },
+
   data() {
     return {
       title: '',
-      content: ''
+      content: '',
+      image: null
+    }
+  },
+
+  validations() {
+    return {
+      title: rules.name,      // reuse simple required rule
+      content: rules.name
     }
   },
 
   methods: {
 
+    getError,
+
+    handleFile(e) {
+      this.image = e.target.files[0]
+    },
+
     async submitPost() {
 
-      await this.$axios.post('/posts', {
-        title: this.title,
-        content: this.content
-      })
+      this.$v.$touch()
 
-      this.$toast.success('Blog published successfully')
+      if (this.$v.$invalid) {
+        this.$toast.error('Fix form errors')
+        return
+      }
 
-      this.$router.push('/dashboard')
+      try {
+
+        const formData = new FormData()
+
+        formData.append('title', this.title)
+        formData.append('content', this.content)
+
+        if (this.image) {
+          formData.append('image', this.image)
+        }
+
+        await this.$axios.post('/posts', formData)
+
+        this.$toast.success('Blog created')
+
+        this.$router.push('/dashboard')
+
+      } catch {
+        this.$toast.error('Error creating post')
+      }
 
     }
 

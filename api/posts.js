@@ -1,9 +1,23 @@
 const express = require('express')
 const jwt = require('jsonwebtoken')
 const db = require('./db')
+const multer = require('multer')
+const path = require('path')
 
 const router = express.Router()
 const SECRET = 'SUPER_SECRET_KEY'
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'static/uploads/')
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + path.extname(file.originalname)
+    cb(null, uniqueName)
+  }
+})
+
+const upload = multer({ storage })
 
 // Auth Middleware
 function authMiddleware(req, res, next) {
@@ -24,14 +38,16 @@ function authMiddleware(req, res, next) {
 }
 
 // CREATE POST
-router.post('/', authMiddleware, (req, res) => {
+router.post('/', authMiddleware, upload.single('image'), (req, res) => {
 
-  const { title, content, image } = req.body
+  const { title, content } = req.body
+
+  const imagePath = req.file ? `/uploads/${req.file.filename}` : null
 
   db.run(
-    `INSERT INTO posts (title, content, image, email)
-     VALUES (?, ?, ?, ?)`,
-    [title, content, image || null, req.user.email],
+    `INSERT INTO posts (title, content, image, username, email)
+     VALUES (?, ?, ?, ?, ?)`,
+    [title, content, imagePath, req.user.username, req.user.email],
     function(err) {
 
       if (err) {
@@ -66,8 +82,8 @@ router.put('/:id', authMiddleware, (req, res) => {
   db.run(
     `UPDATE posts
      SET title = ?, content = ?
-     WHERE id = ? AND email = ?`,
-    [req.body.title, req.body.content, req.params.id, req.user.email],
+     WHERE id = ? AND username = ?`,
+    [req.body.title, req.body.content, req.params.id, req.user.username],
     function(err) {
 
       if (this.changes === 0) {
@@ -84,8 +100,8 @@ router.delete('/:id', authMiddleware, (req, res) => {
 
   db.run(
     `DELETE FROM posts
-     WHERE id = ? AND email = ?`,
-    [req.params.id, req.user.email],
+     WHERE id = ? AND username = ?`,
+    [req.params.id, req.user.username],
     function(err) {
 
       if (this.changes === 0) {
