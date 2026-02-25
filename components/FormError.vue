@@ -1,7 +1,7 @@
 <template>
-  <div v-if="message" class="error">
+  <p v-if="message" class="error-text">
     {{ message }}
-  </div>
+  </p>
 </template>
 
 <script>

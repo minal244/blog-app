@@ -5,15 +5,48 @@
 
     <form @submit.prevent="handleRegister">
 
-      <input v-model="name" placeholder="Name" required />
-      <input v-model="email" type="email" placeholder="Email" required />
+      <!-- Username -->
+      <input
+        v-model="username"
+        placeholder="Username"
+        @blur="$v.username.$touch()"
+      />
+      <FormError :message="getError($v.username)" />
 
+      <!-- Email -->
+      <input
+        v-model="email"
+        type="email"
+        placeholder="Email"
+        @blur="$v.email.$touch()"
+      />
+      <FormError :message="getError($v.email)" />
+
+      <!-- Password -->
       <PasswordInput
         v-model="password"
         placeholder="Password"
+        :visible="showPassword"
       />
+      <FormError :message="getError($v.password)" />
 
-      <button type="submit">
+      <!-- Confirm Password -->
+      <PasswordInput
+        v-model="confirmPassword"
+        placeholder="Confirm Password"
+        :visible="showPassword"
+      />
+      <FormError :message="getError($v.confirmPassword)" />
+
+      <button
+        type="button"
+        @click="showPassword = !showPassword"
+        class="btn"
+      >
+        {{ showPassword ? 'Hide Password' : 'Show Password' }}
+      </button>
+
+      <button type="submit" class="btn">
         Register
       </button>
 
@@ -28,29 +61,57 @@
 
 <script>
 import PasswordInput from '~/components/PasswordInput.vue'
+import FormError from '~/components/FormError.vue'
+import { rules } from '~/utils/validations/rules'
+import { getError } from '~/utils/validations/getError'
+import { getAllErrors } from '~/utils/validations/getAllErrors'
 
 export default {
 
   layout: 'auth',
   middleware: 'guest',
-  components: { PasswordInput },
+
+  components: {
+    PasswordInput,
+    FormError
+  },
 
   data() {
     return {
-      name: '',
+      username: '',
       email: '',
-      password: ''
+      password: '',
+      confirmPassword: '',
+      showPassword: false
+    }
+  },
+
+  validations() {
+    return {
+      username: rules.name,
+      email: rules.email,
+      password: rules.password,
+      confirmPassword: rules.confirmPassword(() => this.password)
     }
   },
 
   methods: {
 
+    getError,
+
     async handleRegister() {
+
+      this.$v.$touch()
+
+      if (this.$v.$invalid) {
+        this.$toast.error('Fix form errors')
+        return
+      }
 
       try {
 
         await this.$axios.post('/auth/register', {
-          name: this.name,
+          username: this.username,
           email: this.email,
           password: this.password
         })

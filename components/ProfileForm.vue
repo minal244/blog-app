@@ -5,10 +5,16 @@
 
     <form @submit.prevent="update">
 
-      <input v-model="name" />
+      <input
+        v-model="username"
+        :class="{ error: $v.username.$error }"
+        @blur="$v.username.$touch()"
+      />
+
+      <FormError :message="getError($v.username)" />
 
       <button type="submit">
-        Update Name
+        Update Username
       </button>
 
     </form>
@@ -17,31 +23,71 @@
 </template>
 
 <script>
+import FormError from '~/components/FormError.vue'
+import { rules } from '~/utils/validations/rules'
+import { getError } from '~/utils/validations/getError'
+import { getAllErrors } from '~/utils/validations/getAllErrors'
+import { scrollToError } from '~/utils/validations/scrollToError'
+
 export default {
+
+  components: {
+    FormError
+  },
 
   data() {
     return {
-      name: this.$store.state.user.name
+      username: this.$store.state.user?.username || ''
+    }
+  },
+
+  validations() {
+    return {
+      username: rules.name
     }
   },
 
   methods: {
 
+    getError,
+
     async update() {
 
-      await this.$axios.put('/auth/update', {
-        name: this.name
-      })
+      this.$v.$touch()
 
-      this.$store.commit('setAuth', {
-        token: this.$store.state.token,
-        user: {
-          ...this.$store.state.user,
-          name: this.name
-        }
-      })
+      if (this.$v.$invalid) {
 
-      this.$toast.success('Profile updated')
+        const errors = getAllErrors(this.$v)
+
+        this.$toast.error(errors[0])
+
+        this.$nextTick(() => {
+          scrollToError()
+        })
+
+        return
+      }
+
+      try {
+
+        await this.$axios.put('/auth/update', {
+          username: this.username
+        })
+
+        this.$store.commit('setAuth', {
+          token: this.$store.state.token,
+          user: {
+            ...this.$store.state.user,
+            username: this.username
+          }
+        })
+
+        this.$toast.success('Profile updated')
+
+      } catch (error) {
+        this.$toast.error('Username is already taken')
+      }
+
     }
 
   }
