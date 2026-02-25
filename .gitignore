@@ -60,7 +60,11 @@ pids
 *.seed
 *.tgz
 
-static/uploads/*.png
-static/uploads/*.jpg
-static/uploads/*.jpeg
-static/uploads/*.gif
+# Ignore all files inside uploads
+static/uploads/*
+
+# But keep the folder itself
+!static/uploads/
+
+# Keep a placeholder file so Git tracks the folder
+!static/uploads/.gitkeep

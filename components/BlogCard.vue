@@ -8,7 +8,16 @@
     </p>
 
     <img
-      v-if="post.image" :src="post.image" class="blog-image"
+      v-if="post.image" 
+      :src="post.image"
+      class="blog-image" 
+      @click="openImage(post.image)"
+    />
+
+    <ImageModal
+      :show="showModal"
+      :src="selectedImage"
+      @close="showModal = false"
     />
 
     <p class="content">
@@ -29,7 +38,23 @@
 </template>
 
 <script>
+import ImageModal from '~/components/ImageModal.vue'
+
 export default {
+  components: { ImageModal },
+  data() {
+    return {
+      showModal: false,
+      selectedImage: 'null'
+    }
+  },
+
+  methods: {
+    openImage(image) {
+      this.selectedImage = image
+      this.showModal = true
+    }
+  },
 
   props: {
     post: {
