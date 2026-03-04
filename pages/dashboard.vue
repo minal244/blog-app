@@ -16,6 +16,8 @@
 
     </div>
 
+    <QuoteWidget />
+
     <div v-if="myPosts.length === 0" class="empty-state">
       <p>No blogs yet.</p>
       <nuxt-link to="/create">Create your first blog →</nuxt-link>
@@ -34,11 +36,12 @@
 
 <script>
 import BlogCard from '~/components/BlogCard.vue'
+import QuoteWidget from '~/components/QuoteWidget.vue'
 
 export default {
 
   middleware: 'auth',
-  components: { BlogCard },
+  components: { BlogCard, QuoteWidget },
 
   data() {
     return {
