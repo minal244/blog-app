@@ -55,14 +55,32 @@ router.post('/register', async (req, res) => {
   )
 })
 
+// CHECK USERNAME AVAILABILITY
+router.get('/check-username', (req, res) => {
+
+  const { username } = req.query
+
+  if (!username) {
+    return res.json({ available: false })
+  }
+
+  db.get(
+    `SELECT id FROM users WHERE username = ?`,
+    [username],
+    (err, row) => {
+      res.json({ available: !row })
+    }
+  )
+})
+
 // LOGIN
 router.post('/login', (req, res) => {
 
-  const { username, password } = req.body
+  const { identifier, password } = req.body
 
   db.get(
-    `SELECT * FROM users WHERE username = ?`,
-    [username],
+    `SELECT * FROM users WHERE username = ? OR email = ?`,
+    [identifier, identifier],
     async (err, user) => {
 
       if (!user) {

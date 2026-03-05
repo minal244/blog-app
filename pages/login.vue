@@ -5,15 +5,15 @@
 
     <form @submit.prevent="handleLogin">
 
-      <!-- Username -->
+      <!-- Identifier -->
       <input
-        v-model="username"
+        v-model="identifier"
         type="text"
-        placeholder="Username"
-        @blur="$v.username.$touch()"
+        placeholder="Username or Email"
+        @blur="$v.identifier.$touch()"
       />
 
-      <FormError :message="getError($v.username)" />
+      <FormError :message="getError($v.identifier)" />
 
       <!-- Password -->
       <PasswordInput
@@ -63,7 +63,7 @@ export default {
 
   data() {
     return {
-      username: '',
+      identifier: '',
       password: '',
       showPassword: false
     }
@@ -71,7 +71,7 @@ export default {
 
   validations() {
     return {
-      username: rules.required,
+      identifier: rules.required,
       password: rules.password
     }
   },
@@ -92,7 +92,7 @@ export default {
       try {
 
         const res = await this.$axios.post('/auth/login', {
-          username: this.username,
+          identifier: this.identifier,
           password: this.password
         })
 

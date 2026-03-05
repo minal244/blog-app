@@ -10,8 +10,12 @@
         v-model="username"
         placeholder="Username"
         @blur="$v.username.$touch()"
+        @input="checkUsername"
       />
       <FormError :message="getError($v.username)" />
+      <p v-if="usernameStatus === 'checking'" class="username-status checking">Checking...</p>
+      <p v-else-if="usernameStatus === 'available'" class="username-status available">✓ Username available</p>
+      <p v-else-if="usernameStatus === 'taken'" class="username-status taken">✗ Username already taken</p>
 
       <!-- Email -->
       <input
@@ -81,7 +85,9 @@ export default {
       email: '',
       password: '',
       confirmPassword: '',
-      showPassword: false
+      showPassword: false,
+      usernameStatus: null,
+      usernameTimer: null
     }
   },
 
@@ -97,6 +103,24 @@ export default {
   methods: {
 
     getError,
+
+    checkUsername() {
+      clearTimeout(this.usernameTimer)
+
+      if (!this.username) {
+        this.usernameStatus = null
+        return
+      }
+
+      this.usernameStatus = 'checking'
+
+      this.usernameTimer = setTimeout(async () => {
+        const res = await this.$axios.get('/auth/check-username', {
+          params: { username: this.username }
+        })
+        this.usernameStatus = res.data.available ? 'available' : 'taken'
+      }, 400)
+    },
 
     async handleRegister() {
 
@@ -131,3 +155,22 @@ export default {
 
 }
 </script>
+
+<style scoped>
+.username-status {
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.checking {
+  color: #6b7280;
+}
+
+.available {
+  color: #16a34a;
+}
+
+.taken {
+  color: #dc2626;
+}
+</style>
