@@ -5,21 +5,23 @@
 
     <form @submit.prevent="handleLogin">
 
-      <!-- Username -->
+      <!-- Identifier -->
       <input
-        v-model="username"
+        v-model="identifier"
         type="text"
-        placeholder="Username"
-        @blur="$v.username.$touch()"
+        placeholder="Username or Email"
+        :class="{ error: $v.identifier.$error }"
+        @blur="$v.identifier.$touch()"
       />
 
-      <FormError :message="getError($v.username)" />
+      <FormError :message="getError($v.identifier)" />
 
       <!-- Password -->
       <PasswordInput
         v-model="password"
         placeholder="Password"
         :visible="showPassword"
+        @blur="$v.password.$touch()"
       />
 
       <FormError :message="getError($v.password)" />
@@ -50,7 +52,6 @@ import PasswordInput from '~/components/PasswordInput.vue'
 import FormError from '~/components/FormError.vue'
 import { rules } from '~/utils/validations/rules'
 import { getError } from '~/utils/validations/getError'
-import { getAllErrors } from '~/utils/validations/getAllErrors'
 
 export default {
 
@@ -64,7 +65,7 @@ export default {
 
   data() {
     return {
-      username: '',
+      identifier: '',
       password: '',
       showPassword: false
     }
@@ -72,7 +73,7 @@ export default {
 
   validations() {
     return {
-      username: rules.name,      // reuse name rule
+      identifier: rules.required,
       password: rules.password
     }
   },
@@ -93,7 +94,7 @@ export default {
       try {
 
         const res = await this.$axios.post('/auth/login', {
-          username: this.username,
+          identifier: this.identifier,
           password: this.password
         })
 

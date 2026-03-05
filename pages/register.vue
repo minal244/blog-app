@@ -9,15 +9,21 @@
       <input
         v-model="username"
         placeholder="Username"
+        :class="{ error: $v.username.$error }"
         @blur="$v.username.$touch()"
+        @input="checkUsername"
       />
       <FormError :message="getError($v.username)" />
+      <p v-if="usernameStatus === 'checking'" class="username-status checking">Checking...</p>
+      <p v-else-if="usernameStatus === 'available'" class="username-status available">✓ Username available</p>
+      <p v-else-if="usernameStatus === 'taken'" class="username-status taken">✗ Username already taken</p>
 
       <!-- Email -->
       <input
         v-model="email"
         type="email"
         placeholder="Email"
+        :class="{ error: $v.email.$error }"
         @blur="$v.email.$touch()"
       />
       <FormError :message="getError($v.email)" />
@@ -27,6 +33,7 @@
         v-model="password"
         placeholder="Password"
         :visible="showPassword"
+        @blur="$v.password.$touch()"
       />
       <FormError :message="getError($v.password)" />
 
@@ -35,6 +42,7 @@
         v-model="confirmPassword"
         placeholder="Confirm Password"
         :visible="showPassword"
+        @blur="$v.confirmPassword.$touch()"
       />
       <FormError :message="getError($v.confirmPassword)" />
 
@@ -64,7 +72,6 @@ import PasswordInput from '~/components/PasswordInput.vue'
 import FormError from '~/components/FormError.vue'
 import { rules } from '~/utils/validations/rules'
 import { getError } from '~/utils/validations/getError'
-import { getAllErrors } from '~/utils/validations/getAllErrors'
 
 export default {
 
@@ -82,13 +89,15 @@ export default {
       email: '',
       password: '',
       confirmPassword: '',
-      showPassword: false
+      showPassword: false,
+      usernameStatus: null,
+      usernameTimer: null
     }
   },
 
   validations() {
     return {
-      username: rules.name,
+      username: rules.required,
       email: rules.email,
       password: rules.password,
       confirmPassword: rules.confirmPassword(() => this.password)
@@ -98,6 +107,24 @@ export default {
   methods: {
 
     getError,
+
+    checkUsername() {
+      clearTimeout(this.usernameTimer)
+
+      if (!this.username) {
+        this.usernameStatus = null
+        return
+      }
+
+      this.usernameStatus = 'checking'
+
+      this.usernameTimer = setTimeout(async () => {
+        const res = await this.$axios.get('/auth/check-username', {
+          params: { username: this.username }
+        })
+        this.usernameStatus = res.data.available ? 'available' : 'taken'
+      }, 400)
+    },
 
     async handleRegister() {
 
@@ -110,15 +137,17 @@ export default {
 
       try {
 
-        await this.$axios.post('/auth/register', {
+        const res = await this.$axios.post('/auth/register', {
           username: this.username,
           email: this.email,
           password: this.password
         })
 
+        this.$store.dispatch('login', res.data)
+
         this.$toast.success('Account created')
 
-        this.$router.push('/login')
+        this.$router.push('/dashboard')
 
       } catch {
         this.$toast.error('User already exists')
@@ -130,3 +159,4 @@ export default {
 
 }
 </script>
+

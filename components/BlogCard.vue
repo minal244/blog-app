@@ -8,10 +8,11 @@
     </p>
 
     <img
-      v-if="post.image" 
-      :src="post.image"
-      class="blog-image" 
-      @click="openImage(post.image)"
+      v-for="(src, i) in postImages"
+      :key="i"
+      :src="src"
+      class="blog-image"
+      @click="openImage(src)"
     />
 
     <ImageModal
@@ -45,7 +46,7 @@ export default {
   data() {
     return {
       showModal: false,
-      selectedImage: 'null'
+      selectedImage: null
     }
   },
 
@@ -68,6 +69,16 @@ export default {
   },
 
   computed: {
+    postImages() {
+      if (!this.post.image) return []
+      try {
+        const parsed = JSON.parse(this.post.image)
+        return Array.isArray(parsed) ? parsed : [this.post.image]
+      } catch {
+        return [this.post.image]
+      }
+    },
+
     formattedDate() {
       const utc = this.post.created_at.replace(' ', 'T') + 'Z'
 

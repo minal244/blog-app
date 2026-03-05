@@ -9,6 +9,7 @@
       <input
         v-model="title"
         placeholder="Title"
+        :class="{ error: $v.title.$error }"
         @blur="$v.title.$touch()"
       />
       <FormError :message="getError($v.title)" />
@@ -17,12 +18,31 @@
       <textarea
         v-model="content"
         placeholder="Content"
+        :class="{ error: $v.content.$error }"
         @blur="$v.content.$touch()"
       ></textarea>
       <FormError :message="getError($v.content)" />
 
-      <button type="submit">
-        Update
+      <!-- Existing Images -->
+      <div v-if="existingImages.length" class="image-previews">
+        <div v-for="(src, i) in existingImages" :key="'existing-' + i" class="preview-item">
+          <img :src="src" class="preview-thumb" />
+          <button type="button" class="remove-btn" @click="removeExisting(i)">×</button>
+        </div>
+      </div>
+
+      <!-- Add New Images -->
+      <input type="file" multiple @change="handleFile" />
+
+      <div v-if="newImages.length" class="image-previews">
+        <div v-for="(img, i) in newImages" :key="'new-' + i" class="preview-item">
+          <img :src="previewUrl(img)" class="preview-thumb" />
+          <button type="button" class="remove-btn" @click="removeNew(i)">×</button>
+        </div>
+      </div>
+
+      <button type="submit" :disabled="loading">
+        {{ loading ? 'Saving...' : 'Update' }}
       </button>
 
     </form>
@@ -34,7 +54,6 @@
 import FormError from '~/components/FormError.vue'
 import { rules } from '~/utils/validations/rules'
 import { getError } from '~/utils/validations/getError'
-import { getAllErrors } from '~/utils/validations/getAllErrors'
 
 export default {
 
@@ -47,14 +66,17 @@ export default {
   data() {
     return {
       title: '',
-      content: ''
+      content: '',
+      existingImages: [],
+      newImages: [],
+      loading: false
     }
   },
 
   validations() {
     return {
-      title: rules.name,
-      content: rules.name
+      title: rules.required,
+      content: rules.required
     }
   },
 
@@ -64,9 +86,9 @@ export default {
 
       const id = this.$route.params.id
 
-      const res = await this.$axios.get('/posts')
+      const res = await this.$axios.get(`/posts/${id}`)
 
-      const post = res.data.find(p => p.id == id)
+      const post = res.data
 
       if (!post) {
         this.$router.push('/dashboard')
@@ -81,6 +103,15 @@ export default {
       this.title = post.title
       this.content = post.content
 
+      if (post.image) {
+        try {
+          const parsed = JSON.parse(post.image)
+          this.existingImages = Array.isArray(parsed) ? parsed : [post.image]
+        } catch {
+          this.existingImages = [post.image]
+        }
+      }
+
     } catch {
       this.$toast.error('Error loading post')
       this.$router.push('/dashboard')
@@ -92,6 +123,22 @@ export default {
 
     getError,
 
+    handleFile(e) {
+      this.newImages = [...this.newImages, ...Array.from(e.target.files)]
+    },
+
+    removeExisting(i) {
+      this.existingImages.splice(i, 1)
+    },
+
+    removeNew(i) {
+      this.newImages.splice(i, 1)
+    },
+
+    previewUrl(file) {
+      return URL.createObjectURL(file)
+    },
+
     async updatePost() {
 
       this.$v.$touch()
@@ -101,14 +148,19 @@ export default {
         return
       }
 
+      this.loading = true
+
       try {
 
         const id = this.$route.params.id
 
-        await this.$axios.put(`/posts/${id}`, {
-          title: this.title,
-          content: this.content
-        })
+        const formData = new FormData()
+        formData.append('title', this.title)
+        formData.append('content', this.content)
+        formData.append('existingImages', JSON.stringify(this.existingImages))
+        this.newImages.forEach(img => formData.append('newImages', img))
+
+        await this.$axios.put(`/posts/${id}`, formData)
 
         this.$toast.success('Updated')
 
@@ -116,6 +168,8 @@ export default {
 
       } catch {
         this.$toast.error('Error updating post')
+      } finally {
+        this.loading = false
       }
 
     }
@@ -124,3 +178,4 @@ export default {
 
 }
 </script>
+

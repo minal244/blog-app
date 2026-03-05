@@ -5,7 +5,7 @@ const multer = require('multer')
 const path = require('path')
 
 const router = express.Router()
-const SECRET = 'SUPER_SECRET_KEY'
+const SECRET = process.env.JWT_SECRET
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -38,16 +38,18 @@ function authMiddleware(req, res, next) {
 }
 
 // CREATE POST
-router.post('/', authMiddleware, upload.single('image'), (req, res) => {
+router.post('/', authMiddleware, upload.array('images', 10), (req, res) => {
 
   const { title, content } = req.body
 
-  const imagePath = req.file ? `/uploads/${req.file.filename}` : null
+  const imagePaths = req.files && req.files.length > 0
+    ? JSON.stringify(req.files.map(f => `/uploads/${f.filename}`))
+    : null
 
   db.run(
     `INSERT INTO posts (title, content, image, username, email)
      VALUES (?, ?, ?, ?, ?)`,
-    [title, content, imagePath, req.user.username, req.user.email],
+    [title, content, imagePaths, req.user.username, req.user.email],
     function(err) {
 
       if (err) {
@@ -55,6 +57,23 @@ router.post('/', authMiddleware, upload.single('image'), (req, res) => {
       }
 
       res.json({ id: this.lastID })
+    }
+  )
+})
+
+// GET MY POSTS
+router.get('/mine', authMiddleware, (req, res) => {
+
+  db.all(
+    `SELECT * FROM posts WHERE username = ? ORDER BY created_at DESC`,
+    [req.user.username],
+    (err, rows) => {
+
+      if (err) {
+        return res.status(500).json({ message: 'Error fetching posts' })
+      }
+
+      res.json(rows)
     }
   )
 })
@@ -76,14 +95,42 @@ router.get('/', (req, res) => {
   )
 })
 
+// GET SINGLE POST
+router.get('/:id', (req, res) => {
+
+  db.get(
+    `SELECT * FROM posts WHERE id = ?`,
+    [req.params.id],
+    (err, row) => {
+
+      if (err) {
+        return res.status(500).json({ message: 'Error fetching post' })
+      }
+
+      if (!row) {
+        return res.status(404).json({ message: 'Post not found' })
+      }
+
+      res.json(row)
+    }
+  )
+})
+
 // UPDATE POST
-router.put('/:id', authMiddleware, (req, res) => {
+router.put('/:id', authMiddleware, upload.array('newImages', 10), (req, res) => {
+
+  const existing = req.body.existingImages ? JSON.parse(req.body.existingImages) : []
+  const added = req.files && req.files.length > 0
+    ? req.files.map(f => `/uploads/${f.filename}`)
+    : []
+  const allImages = [...existing, ...added]
+  const imagePaths = allImages.length > 0 ? JSON.stringify(allImages) : null
 
   db.run(
     `UPDATE posts
-     SET title = ?, content = ?
+     SET title = ?, content = ?, image = ?
      WHERE id = ? AND username = ?`,
-    [req.body.title, req.body.content, req.params.id, req.user.username],
+    [req.body.title, req.body.content, imagePaths, req.params.id, req.user.username],
     function(err) {
 
       if (this.changes === 0) {

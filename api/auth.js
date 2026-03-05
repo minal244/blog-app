@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const db = require('./db')
 
 const router = express.Router()
-const SECRET = 'SUPER_SECRET_KEY'
+const SECRET = process.env.JWT_SECRET
 
 // Middleware
 function authMiddleware(req, res, next) {
@@ -41,7 +41,34 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ message: 'User exists' })
       }
 
-      res.json({ message: 'User created' })
+      const token = jwt.sign(
+        { id: this.lastID, username, email },
+        SECRET,
+        { expiresIn: '1d' }
+      )
+
+      res.json({
+        token,
+        user: { id: this.lastID, username, email }
+      })
+    }
+  )
+})
+
+// CHECK USERNAME AVAILABILITY
+router.get('/check-username', (req, res) => {
+
+  const { username } = req.query
+
+  if (!username) {
+    return res.json({ available: false })
+  }
+
+  db.get(
+    `SELECT id FROM users WHERE username = ?`,
+    [username],
+    (err, row) => {
+      res.json({ available: !row })
     }
   )
 })
@@ -49,11 +76,11 @@ router.post('/register', async (req, res) => {
 // LOGIN
 router.post('/login', (req, res) => {
 
-  const { username, password } = req.body
+  const { identifier, password } = req.body
 
   db.get(
-    `SELECT * FROM users WHERE username = ?`,
-    [username],
+    `SELECT * FROM users WHERE username = ? OR email = ?`,
+    [identifier, identifier],
     async (err, user) => {
 
       if (!user) {

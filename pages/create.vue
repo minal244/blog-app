@@ -9,6 +9,7 @@
       <input
         v-model="title"
         placeholder="Title"
+        :class="{ error: $v.title.$error }"
         @blur="$v.title.$touch()"
       />
       <FormError :message="getError($v.title)" />
@@ -17,15 +18,23 @@
       <textarea
         v-model="content"
         placeholder="Content"
+        :class="{ error: $v.content.$error }"
         @blur="$v.content.$touch()"
       ></textarea>
       <FormError :message="getError($v.content)" />
 
-      <!-- Image -->
-      <input type="file" @change="handleFile" />
+      <!-- Images -->
+      <input type="file" multiple @change="handleFile" />
 
-      <button type="submit">
-        Publish
+      <div v-if="images.length" class="image-previews">
+        <div v-for="(img, i) in images" :key="i" class="preview-item">
+          <img :src="previewUrl(img)" class="preview-thumb" />
+          <button type="button" class="remove-btn" @click="removeImage(i)">×</button>
+        </div>
+      </div>
+
+      <button type="submit" :disabled="loading">
+        {{ loading ? 'Publishing...' : 'Publish' }}
       </button>
 
     </form>
@@ -38,7 +47,6 @@ import FormError from '~/components/FormError.vue'
 
 import { rules } from '~/utils/validations/rules'
 import { getError } from '~/utils/validations/getError'
-import { getAllErrors } from '~/utils/validations/getAllErrors'
 
 export default {
 
@@ -52,14 +60,15 @@ export default {
     return {
       title: '',
       content: '',
-      image: null
+      images: [],
+      loading: false
     }
   },
 
   validations() {
     return {
-      title: rules.name,      // reuse simple required rule
-      content: rules.name
+      title: rules.required,
+      content: rules.required
     }
   },
 
@@ -68,7 +77,15 @@ export default {
     getError,
 
     handleFile(e) {
-      this.image = e.target.files[0]
+      this.images = [...this.images, ...Array.from(e.target.files)]
+    },
+
+    removeImage(i) {
+      this.images.splice(i, 1)
+    },
+
+    previewUrl(file) {
+      return URL.createObjectURL(file)
     },
 
     async submitPost() {
@@ -80,6 +97,8 @@ export default {
         return
       }
 
+      this.loading = true
+
       try {
 
         const formData = new FormData()
@@ -87,9 +106,7 @@ export default {
         formData.append('title', this.title)
         formData.append('content', this.content)
 
-        if (this.image) {
-          formData.append('image', this.image)
-        }
+        this.images.forEach(img => formData.append('images', img))
 
         await this.$axios.post('/posts', formData)
 
@@ -99,6 +116,8 @@ export default {
 
       } catch {
         this.$toast.error('Error creating post')
+      } finally {
+        this.loading = false
       }
 
     }
@@ -108,29 +127,3 @@ export default {
 }
 </script>
 
-<style scoped>
-label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 6px;
-  margin-top: 15px;
-}
-
-.actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.secondary-btn {
-  background: #e5e7eb;
-  padding: 10px 16px;
-  border-radius: 6px;
-  color: #374151;
-  font-weight: 500;
-}
-
-.secondary-btn:hover {
-  background: #d1d5db;
-}
-</style>

@@ -9,10 +9,9 @@
 
       <div class="links">
 
-        <nuxt-link to="/view">Blogs</nuxt-link>
-
         <template v-if="isAuthenticated">
           <nuxt-link to="/dashboard">Dashboard</nuxt-link>
+          <nuxt-link to="/view">Blogs</nuxt-link>
           <nuxt-link to="/profile">Profile</nuxt-link>
           <button class="logout-btn" @click="logout">
             Logout
