@@ -26,8 +26,6 @@
 import FormError from '~/components/FormError.vue'
 import { rules } from '~/utils/validations/rules'
 import { getError } from '~/utils/validations/getError'
-import { getAllErrors } from '~/utils/validations/getAllErrors'
-import { scrollToError } from '~/utils/validations/scrollToError'
 
 export default {
 
@@ -43,7 +41,7 @@ export default {
 
   validations() {
     return {
-      username: rules.name
+      username: rules.required
     }
   },
 
@@ -56,15 +54,7 @@ export default {
       this.$v.$touch()
 
       if (this.$v.$invalid) {
-
-        const errors = getAllErrors(this.$v)
-
-        this.$toast.error(errors[0])
-
-        this.$nextTick(() => {
-          scrollToError()
-        })
-
+        this.$toast.error('Fix form errors')
         return
       }
 

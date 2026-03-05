@@ -43,7 +43,6 @@ import FormError from '~/components/FormError.vue'
 
 import { rules } from '~/utils/validations/rules'
 import { getError } from '~/utils/validations/getError'
-import { getAllErrors } from '~/utils/validations/getAllErrors'
 
 export default {
 
@@ -76,8 +75,7 @@ export default {
       this.$v.$touch()
 
       if (this.$v.$invalid) {
-        const errors = getAllErrors(this.$v)
-        this.$toast.error(errors[0])
+        this.$toast.error('Fix form errors')
         return
       }
 

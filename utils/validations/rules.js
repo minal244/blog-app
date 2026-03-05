@@ -2,7 +2,7 @@ import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
 
 export const rules = {
 
-  name: {
+  required: {
     required
   },
 

@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const db = require('./db')
 
 const router = express.Router()
-const SECRET = 'SUPER_SECRET_KEY'
+const SECRET = process.env.JWT_SECRET
 
 // Middleware
 function authMiddleware(req, res, next) {
@@ -41,7 +41,16 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ message: 'User exists' })
       }
 
-      res.json({ message: 'User created' })
+      const token = jwt.sign(
+        { id: this.lastID, username, email },
+        SECRET,
+        { expiresIn: '1d' }
+      )
+
+      res.json({
+        token,
+        user: { id: this.lastID, username, email }
+      })
     }
   )
 })

@@ -64,7 +64,6 @@ import PasswordInput from '~/components/PasswordInput.vue'
 import FormError from '~/components/FormError.vue'
 import { rules } from '~/utils/validations/rules'
 import { getError } from '~/utils/validations/getError'
-import { getAllErrors } from '~/utils/validations/getAllErrors'
 
 export default {
 
@@ -88,7 +87,7 @@ export default {
 
   validations() {
     return {
-      username: rules.name,
+      username: rules.required,
       email: rules.email,
       password: rules.password,
       confirmPassword: rules.confirmPassword(() => this.password)
@@ -110,15 +109,17 @@ export default {
 
       try {
 
-        await this.$axios.post('/auth/register', {
+        const res = await this.$axios.post('/auth/register', {
           username: this.username,
           email: this.email,
           password: this.password
         })
 
+        this.$store.dispatch('login', res.data)
+
         this.$toast.success('Account created')
 
-        this.$router.push('/login')
+        this.$router.push('/dashboard')
 
       } catch {
         this.$toast.error('User already exists')

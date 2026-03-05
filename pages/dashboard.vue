@@ -18,18 +18,22 @@
 
     <QuoteWidget />
 
-    <div v-if="myPosts.length === 0" class="empty-state">
-      <p>No blogs yet.</p>
-      <nuxt-link to="/create">Create your first blog →</nuxt-link>
-    </div>
+    <p v-if="loading" class="loading-text">Loading your blogs...</p>
 
-    <BlogCard
-      v-for="post in myPosts"
-      :key="post.id"
-      :post="post"
-      :editable="true"
-      @delete="deletePost(post.id)"
-    />
+    <template v-else>
+      <div v-if="posts.length === 0" class="empty-state">
+        <p>No blogs yet.</p>
+        <nuxt-link to="/create">Create your first blog →</nuxt-link>
+      </div>
+
+      <BlogCard
+        v-for="post in posts"
+        :key="post.id"
+        :post="post"
+        :editable="true"
+        @delete="deletePost(post.id)"
+      />
+    </template>
 
   </div>
 </template>
@@ -45,7 +49,8 @@ export default {
 
   data() {
     return {
-      posts: []
+      posts: [],
+      loading: false
     }
   },
 
@@ -53,24 +58,18 @@ export default {
 
     this.$store.dispatch('initAuth')
 
-    const res = await this.$axios.get('/posts')
+    this.loading = true
+    const res = await this.$axios.get('/posts/mine')
     this.posts = res.data
-
-  },
-
-  computed: {
-
-    myPosts() {
-      return this.posts.filter(
-        p => p.username === this.$store.state.user?.username
-      )
-    }
+    this.loading = false
 
   },
 
   methods: {
 
     async deletePost(id) {
+
+      if (!window.confirm('Delete this blog? This cannot be undone.')) return
 
       await this.$axios.delete(`/posts/${id}`)
 
@@ -111,6 +110,12 @@ export default {
 }
 
 .empty-state {
+  text-align: center;
+  padding: 40px 0;
+  color: #6b7280;
+}
+
+.loading-text {
   text-align: center;
   padding: 40px 0;
   color: #6b7280;

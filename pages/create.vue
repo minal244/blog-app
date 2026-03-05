@@ -21,11 +21,18 @@
       ></textarea>
       <FormError :message="getError($v.content)" />
 
-      <!-- Image -->
-      <input type="file" @change="handleFile" />
+      <!-- Images -->
+      <input type="file" multiple @change="handleFile" />
 
-      <button type="submit">
-        Publish
+      <div v-if="images.length" class="image-previews">
+        <div v-for="(img, i) in images" :key="i" class="preview-item">
+          <img :src="previewUrl(img)" class="preview-thumb" />
+          <button type="button" class="remove-btn" @click="removeImage(i)">×</button>
+        </div>
+      </div>
+
+      <button type="submit" :disabled="loading">
+        {{ loading ? 'Publishing...' : 'Publish' }}
       </button>
 
     </form>
@@ -38,7 +45,6 @@ import FormError from '~/components/FormError.vue'
 
 import { rules } from '~/utils/validations/rules'
 import { getError } from '~/utils/validations/getError'
-import { getAllErrors } from '~/utils/validations/getAllErrors'
 
 export default {
 
@@ -52,14 +58,15 @@ export default {
     return {
       title: '',
       content: '',
-      image: null
+      images: [],
+      loading: false
     }
   },
 
   validations() {
     return {
-      title: rules.name,      // reuse simple required rule
-      content: rules.name
+      title: rules.required,
+      content: rules.required
     }
   },
 
@@ -68,7 +75,15 @@ export default {
     getError,
 
     handleFile(e) {
-      this.image = e.target.files[0]
+      this.images = [...this.images, ...Array.from(e.target.files)]
+    },
+
+    removeImage(i) {
+      this.images.splice(i, 1)
+    },
+
+    previewUrl(file) {
+      return URL.createObjectURL(file)
     },
 
     async submitPost() {
@@ -80,6 +95,8 @@ export default {
         return
       }
 
+      this.loading = true
+
       try {
 
         const formData = new FormData()
@@ -87,9 +104,7 @@ export default {
         formData.append('title', this.title)
         formData.append('content', this.content)
 
-        if (this.image) {
-          formData.append('image', this.image)
-        }
+        this.images.forEach(img => formData.append('images', img))
 
         await this.$axios.post('/posts', formData)
 
@@ -99,6 +114,8 @@ export default {
 
       } catch {
         this.$toast.error('Error creating post')
+      } finally {
+        this.loading = false
       }
 
     }
@@ -109,6 +126,41 @@ export default {
 </script>
 
 <style scoped>
+.image-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.preview-item {
+  position: relative;
+}
+
+.preview-thumb {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
 label {
   display: block;
   font-weight: 500;

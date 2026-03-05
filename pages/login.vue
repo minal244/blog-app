@@ -50,7 +50,6 @@ import PasswordInput from '~/components/PasswordInput.vue'
 import FormError from '~/components/FormError.vue'
 import { rules } from '~/utils/validations/rules'
 import { getError } from '~/utils/validations/getError'
-import { getAllErrors } from '~/utils/validations/getAllErrors'
 
 export default {
 
@@ -72,7 +71,7 @@ export default {
 
   validations() {
     return {
-      username: rules.name,      // reuse name rule
+      username: rules.required,
       password: rules.password
     }
   },
