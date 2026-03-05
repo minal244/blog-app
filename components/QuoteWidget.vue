@@ -10,10 +10,6 @@
       <p class="author">— {{ author }}</p>
     </div>
 
-    <button @click="fetchQuote">
-      New Quote
-    </button>
-
   </div>
 </template>
 
