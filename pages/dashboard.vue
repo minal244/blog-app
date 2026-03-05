@@ -96,7 +96,7 @@ export default {
 }
 
 .create-btn {
-  background: #4f46e5;
+  background: #2f8274;
   padding: 10px 18px;
   border-radius: 6px;
   color: white;
@@ -104,7 +104,7 @@ export default {
 }
 
 .create-btn:hover {
-  background: #4338ca;
+  background: #236358;
 }
 
 </style>
