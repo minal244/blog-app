@@ -9,6 +9,7 @@
       <input
         v-model="title"
         placeholder="Title"
+        :class="{ error: $v.title.$error }"
         @blur="$v.title.$touch()"
       />
       <FormError :message="getError($v.title)" />
@@ -17,6 +18,7 @@
       <textarea
         v-model="content"
         placeholder="Content"
+        :class="{ error: $v.content.$error }"
         @blur="$v.content.$touch()"
       ></textarea>
       <FormError :message="getError($v.content)" />
@@ -177,39 +179,3 @@ export default {
 }
 </script>
 
-<style scoped>
-.image-previews {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.preview-item {
-  position: relative;
-}
-
-.preview-thumb {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 6px;
-  display: block;
-}
-
-.remove-btn {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 22px;
-  height: 22px;
-  padding: 0;
-  background: rgba(0,0,0,0.6);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-}
-</style>

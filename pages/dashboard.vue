@@ -18,10 +18,10 @@
 
     <QuoteWidget />
 
-    <p v-if="loading" class="loading-text">Loading your blogs...</p>
+    <p v-if="loading" class="centered-state">Loading your blogs...</p>
 
     <template v-else>
-      <div v-if="posts.length === 0" class="empty-state">
+      <div v-if="posts.length === 0" class="centered-state">
         <p>No blogs yet.</p>
         <nuxt-link to="/create">Create your first blog →</nuxt-link>
       </div>
@@ -55,8 +55,6 @@ export default {
   },
 
   async mounted() {
-
-    this.$store.dispatch('initAuth')
 
     this.loading = true
     const res = await this.$axios.get('/posts/mine')
@@ -109,15 +107,4 @@ export default {
   background: #4338ca;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 40px 0;
-  color: #6b7280;
-}
-
-.loading-text {
-  text-align: center;
-  padding: 40px 0;
-  color: #6b7280;
-}
 </style>

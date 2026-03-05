@@ -72,8 +72,4 @@ export default {
   font-size: 14px;
   color: #555;
 }
-
-button {
-  margin-top: 10px;
-}
 </style>

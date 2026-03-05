@@ -89,6 +89,7 @@ export default {
 
         this.password = ''
         this.confirmPassword = ''
+        this.$v.$reset()
 
       } catch {
         this.$toast.error('Error updating password')

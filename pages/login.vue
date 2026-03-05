@@ -10,6 +10,7 @@
         v-model="identifier"
         type="text"
         placeholder="Username or Email"
+        :class="{ error: $v.identifier.$error }"
         @blur="$v.identifier.$touch()"
       />
 
@@ -20,6 +21,7 @@
         v-model="password"
         placeholder="Password"
         :visible="showPassword"
+        @blur="$v.password.$touch()"
       />
 
       <FormError :message="getError($v.password)" />

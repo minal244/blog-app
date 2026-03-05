@@ -11,8 +11,8 @@
 
     <p>{{ error.message }}</p>
 
-    <nuxt-link to="/dashboard">
-      Go back to Dashboard
+    <nuxt-link to="/">
+      Go back to Home
     </nuxt-link>
 
   </div>

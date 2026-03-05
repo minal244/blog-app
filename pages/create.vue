@@ -9,6 +9,7 @@
       <input
         v-model="title"
         placeholder="Title"
+        :class="{ error: $v.title.$error }"
         @blur="$v.title.$touch()"
       />
       <FormError :message="getError($v.title)" />
@@ -17,6 +18,7 @@
       <textarea
         v-model="content"
         placeholder="Content"
+        :class="{ error: $v.content.$error }"
         @blur="$v.content.$touch()"
       ></textarea>
       <FormError :message="getError($v.content)" />
@@ -125,64 +127,3 @@ export default {
 }
 </script>
 
-<style scoped>
-.image-previews {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.preview-item {
-  position: relative;
-}
-
-.preview-thumb {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 6px;
-  display: block;
-}
-
-.remove-btn {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 22px;
-  height: 22px;
-  padding: 0;
-  background: rgba(0,0,0,0.6);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 6px;
-  margin-top: 15px;
-}
-
-.actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.secondary-btn {
-  background: #e5e7eb;
-  padding: 10px 16px;
-  border-radius: 6px;
-  color: #374151;
-  font-weight: 500;
-}
-
-.secondary-btn:hover {
-  background: #d1d5db;
-}
-</style>

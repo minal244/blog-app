@@ -9,11 +9,15 @@
         v-model="username"
         :class="{ error: $v.username.$error }"
         @blur="$v.username.$touch()"
+        @input="checkUsername"
       />
 
       <FormError :message="getError($v.username)" />
+      <p v-if="usernameStatus === 'checking'" class="username-status checking">Checking...</p>
+      <p v-else-if="usernameStatus === 'available'" class="username-status available">✓ Username available</p>
+      <p v-else-if="usernameStatus === 'taken'" class="username-status taken">✗ Username already taken</p>
 
-      <button type="submit">
+      <button type="submit" :disabled="usernameStatus === 'taken'">
         Update Username
       </button>
 
@@ -35,7 +39,9 @@ export default {
 
   data() {
     return {
-      username: this.$store.state.user?.username || ''
+      username: this.$store.state.user?.username || '',
+      usernameStatus: null,
+      usernameTimer: null
     }
   },
 
@@ -48,6 +54,26 @@ export default {
   methods: {
 
     getError,
+
+    checkUsername() {
+      clearTimeout(this.usernameTimer)
+
+      const current = this.$store.state.user?.username
+
+      if (!this.username || this.username === current) {
+        this.usernameStatus = null
+        return
+      }
+
+      this.usernameStatus = 'checking'
+
+      this.usernameTimer = setTimeout(async () => {
+        const res = await this.$axios.get('/auth/check-username', {
+          params: { username: this.username }
+        })
+        this.usernameStatus = res.data.available ? 'available' : 'taken'
+      }, 400)
+    },
 
     async update() {
 
@@ -64,12 +90,11 @@ export default {
           username: this.username
         })
 
+        const updatedUser = { ...this.$store.state.user, username: this.username }
+        localStorage.setItem('user', JSON.stringify(updatedUser))
         this.$store.commit('setAuth', {
           token: this.$store.state.token,
-          user: {
-            ...this.$store.state.user,
-            username: this.username
-          }
+          user: updatedUser
         })
 
         this.$toast.success('Profile updated')
@@ -84,3 +109,4 @@ export default {
 
 }
 </script>
+

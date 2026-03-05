@@ -9,6 +9,7 @@
       <input
         v-model="username"
         placeholder="Username"
+        :class="{ error: $v.username.$error }"
         @blur="$v.username.$touch()"
         @input="checkUsername"
       />
@@ -22,6 +23,7 @@
         v-model="email"
         type="email"
         placeholder="Email"
+        :class="{ error: $v.email.$error }"
         @blur="$v.email.$touch()"
       />
       <FormError :message="getError($v.email)" />
@@ -31,6 +33,7 @@
         v-model="password"
         placeholder="Password"
         :visible="showPassword"
+        @blur="$v.password.$touch()"
       />
       <FormError :message="getError($v.password)" />
 
@@ -39,6 +42,7 @@
         v-model="confirmPassword"
         placeholder="Confirm Password"
         :visible="showPassword"
+        @blur="$v.confirmPassword.$touch()"
       />
       <FormError :message="getError($v.confirmPassword)" />
 
@@ -156,21 +160,3 @@ export default {
 }
 </script>
 
-<style scoped>
-.username-status {
-  font-size: 13px;
-  margin-top: 4px;
-}
-
-.checking {
-  color: #6b7280;
-}
-
-.available {
-  color: #16a34a;
-}
-
-.taken {
-  color: #dc2626;
-}
-</style>
