@@ -6,6 +6,8 @@ export const messages = {
 
   minLength: (min) => `Minimum ${min} characters required`,
 
+  maxLength: (max) => `Maximum ${max} characters allowed`,
+
   passwordMismatch: 'Passwords do not match'
 
 }

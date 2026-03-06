@@ -1,4 +1,4 @@
-import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
+import { required, email, minLength, maxLength, sameAs } from 'vuelidate/lib/validators'
 
 export const rules = {
 
@@ -19,6 +19,16 @@ export const rules = {
   confirmPassword: (passwordRef) => ({
     required,
     sameAs: sameAs(passwordRef)
-  })
+  }),
+
+  title: {
+    required,
+    maxLength: maxLength(100)
+  },
+
+  content: {
+    required,
+    maxLength: maxLength(5000)
+  }
 
 }

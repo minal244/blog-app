@@ -34,8 +34,8 @@
         {{ showPassword ? 'Hide Password' : 'Show Password' }}
       </button>
 
-      <button type="submit">
-        Login
+      <button type="submit" :disabled="loading">
+        {{ loading ? 'Logging in...' : 'Login' }}
       </button>
 
       <nuxt-link to="/register">
@@ -43,6 +43,9 @@
       </nuxt-link>
 
     </form>
+
+    <div class="divider">or</div>
+    <nuxt-link to="/view" class="guest-link">Browse as guest →</nuxt-link>
 
   </div>
 </template>
@@ -67,7 +70,8 @@ export default {
     return {
       identifier: '',
       password: '',
-      showPassword: false
+      showPassword: false,
+      loading: false
     }
   },
 
@@ -91,6 +95,8 @@ export default {
         return
       }
 
+      this.loading = true
+
       try {
 
         const res = await this.$axios.post('/auth/login', {
@@ -106,6 +112,8 @@ export default {
 
       } catch {
         this.$toast.error('Invalid credentials')
+      } finally {
+        this.loading = false
       }
 
     }
@@ -114,3 +122,37 @@ export default {
 
 }
 </script>
+
+<style scoped>
+.divider {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+  margin: 16px 0 10px;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 42%;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.divider::before { left: 0; }
+.divider::after  { right: 0; }
+
+.guest-link {
+  display: block;
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.guest-link:hover {
+  color: #2f8274;
+}
+</style>

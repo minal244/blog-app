@@ -54,8 +54,8 @@
         {{ showPassword ? 'Hide Password' : 'Show Password' }}
       </button>
 
-      <button type="submit" class="btn">
-        Register
+      <button type="submit" class="btn" :disabled="loading">
+        {{ loading ? 'Creating account...' : 'Register' }}
       </button>
 
       <nuxt-link to="/login">
@@ -91,7 +91,8 @@ export default {
       confirmPassword: '',
       showPassword: false,
       usernameStatus: null,
-      usernameTimer: null
+      usernameTimer: null,
+      loading: false
     }
   },
 
@@ -135,6 +136,8 @@ export default {
         return
       }
 
+      this.loading = true
+
       try {
 
         const res = await this.$axios.post('/auth/register', {
@@ -151,6 +154,8 @@ export default {
 
       } catch {
         this.$toast.error('User already exists')
+      } finally {
+        this.loading = false
       }
 
     }

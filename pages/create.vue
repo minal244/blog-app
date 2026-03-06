@@ -21,6 +21,7 @@
         :class="{ error: $v.content.$error }"
         @blur="$v.content.$touch()"
       ></textarea>
+      <WordCount :content="content" :max="5000" />
       <FormError :message="getError($v.content)" />
 
       <!-- Images -->
@@ -44,16 +45,19 @@
 
 <script>
 import FormError from '~/components/FormError.vue'
+import WordCount from '~/components/WordCount.vue'
 
 import { rules } from '~/utils/validations/rules'
 import { getError } from '~/utils/validations/getError'
+import { previewUrl } from '~/utils/previewUrl'
 
 export default {
 
   middleware: 'auth',
 
   components: {
-    FormError
+    FormError,
+    WordCount
   },
 
   data() {
@@ -67,25 +71,35 @@ export default {
 
   validations() {
     return {
-      title: rules.required,
-      content: rules.required
+      title: rules.title,
+      content: rules.content
     }
   },
 
   methods: {
 
     getError,
+    previewUrl,
 
     handleFile(e) {
-      this.images = [...this.images, ...Array.from(e.target.files)]
+      const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+      const maxSize = 5 * 1024 * 1024
+      const valid = Array.from(e.target.files).filter(f => {
+        if (!allowed.includes(f.type)) {
+          this.$toast.error(`${f.name} is not a supported image type`)
+          return false
+        }
+        if (f.size > maxSize) {
+          this.$toast.error(`${f.name} exceeds the 5MB limit`)
+          return false
+        }
+        return true
+      })
+      this.images = [...this.images, ...valid]
     },
 
     removeImage(i) {
       this.images.splice(i, 1)
-    },
-
-    previewUrl(file) {
-      return URL.createObjectURL(file)
     },
 
     async submitPost() {

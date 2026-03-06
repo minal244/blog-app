@@ -25,7 +25,8 @@
     />
 
     <p class="content">
-      {{ post.content }}
+      {{ truncatedContent }}
+      <nuxt-link v-if="isLong && !showFull" :to="`/blog/${post.id}`" class="read-more">Read more</nuxt-link>
     </p>
 
     <CommentsSection :postId="post.id" />
@@ -55,7 +56,8 @@ export default {
   data() {
     return {
       showModal: false,
-      selectedImage: null
+      selectedImage: null,
+      showFull: false
     }
   },
 
@@ -82,6 +84,14 @@ export default {
   },
 
   computed: {
+    isLong() {
+      return this.post.content.length > 250
+    },
+    truncatedContent() {
+      if (!this.isLong || this.showFull) return this.post.content
+      return this.post.content.slice(0, 250).trimEnd() + '...'
+    },
+
     postImages() {
       if (!this.post.image) return []
       try {
@@ -131,6 +141,13 @@ export default {
 
 .content {
   margin-bottom: 15px;
+}
+
+.read-more {
+  font-size: 13px;
+  color: #2f8274;
+  margin-left: 4px;
+  white-space: nowrap;
 }
 
 .card-footer {

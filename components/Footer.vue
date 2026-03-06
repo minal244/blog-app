@@ -1,6 +1,6 @@
 <template>
   <footer class="footer">
-    © 2026 NuxtBlog
+    © 2026 WE Blog
   </footer>
 </template>
 

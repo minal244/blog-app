@@ -19,6 +19,7 @@
         </template>
 
         <template v-else>
+          <nuxt-link to="/view">Blogs</nuxt-link>
           <nuxt-link to="/login">Login</nuxt-link>
           <nuxt-link to="/register">Register</nuxt-link>
         </template>

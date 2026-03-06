@@ -10,7 +10,7 @@ export default {
     if (token) {
       this.$router.replace('/dashboard')
     } else {
-      this.$router.replace('/login')
+      this.$router.replace('/view')
     }
   }
 }
