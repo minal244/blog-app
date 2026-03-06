@@ -24,6 +24,28 @@ db.serialize(() => {
       image TEXT,
       email TEXT,
       username TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME
+    )
+  `)
+
+  db.run(`ALTER TABLE posts ADD COLUMN updated_at DATETIME`, () => {})
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS likes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      post_id INTEGER,
+      username TEXT,
+      UNIQUE(post_id, username)
+    )
+  `)
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS comments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      post_id INTEGER,
+      username TEXT,
+      content TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `)
