@@ -65,7 +65,9 @@ router.post('/', authMiddleware, upload.array('images', 10), (req, res) => {
 router.get('/mine', authMiddleware, (req, res) => {
 
   db.all(
-    `SELECT p.*, (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as like_count
+    `SELECT p.*,
+      (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as like_count,
+      (SELECT COUNT(*) FROM comments WHERE post_id = p.id) as comment_count
      FROM posts p WHERE p.username = ? ORDER BY p.created_at DESC`,
     [req.user.username],
     (err, rows) => {
@@ -101,7 +103,8 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
 
   db.get(
-    `SELECT * FROM posts WHERE id = ?`,
+    `SELECT p.*, (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as like_count
+     FROM posts p WHERE p.id = ?`,
     [req.params.id],
     (err, row) => {
 

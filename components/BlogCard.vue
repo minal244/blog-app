@@ -10,13 +10,17 @@
       <span v-if="post.updated_at" class="edited-tag">• Edited</span>
     </p>
 
-    <img
-      v-for="(src, i) in postImages"
-      :key="i"
-      :src="src"
-      class="blog-image"
-      @click="openImage(src)"
-    />
+    <div v-if="postImages.length" class="image-grid" :class="gridClass">
+      <div
+        v-for="(src, i) in visibleImages"
+        :key="i"
+        class="grid-img"
+        @click="openImage(src)"
+      >
+        <img :src="src" />
+        <div v-if="extraCount && i === 3" class="more-overlay">+{{ extraCount }}</div>
+      </div>
+    </div>
 
     <ImageModal
       :show="showModal"
@@ -100,6 +104,22 @@ export default {
       } catch {
         return [this.post.image]
       }
+    },
+
+    gridClass() {
+      const n = this.postImages.length
+      if (n === 1) return 'grid-1'
+      if (n === 2) return 'grid-2'
+      if (n === 3) return 'grid-3'
+      return 'grid-4plus'
+    },
+
+    visibleImages() {
+      return this.postImages.slice(0, 4)
+    },
+
+    extraCount() {
+      return this.postImages.length > 4 ? this.postImages.length - 4 : 0
     },
 
     formattedDate() {
@@ -193,11 +213,55 @@ export default {
   background: #dc2626;
 }
 
-.blog-image {
-  width: 100%;
-  max-height: 300px;
-  object-fit: cover;
-  border-radius: 8px;
+.image-grid {
+  display: grid;
+  gap: 3px;
   margin: 10px 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.image-grid.grid-1 { grid-template-columns: 1fr; }
+.image-grid.grid-1 .grid-img { aspect-ratio: 16/9; }
+
+.image-grid.grid-2 { grid-template-columns: 1fr 1fr; }
+.image-grid.grid-2 .grid-img { aspect-ratio: 1; }
+
+.image-grid.grid-3 { grid-template-columns: 1fr 1fr; }
+.image-grid.grid-3 .grid-img:first-child { grid-column: 1 / -1; aspect-ratio: 16/9; }
+.image-grid.grid-3 .grid-img:not(:first-child) { aspect-ratio: 4/3; }
+
+.image-grid.grid-4plus { grid-template-columns: 2fr 1fr; }
+.image-grid.grid-4plus .grid-img:first-child { grid-row: span 3; }
+.image-grid.grid-4plus .grid-img:not(:first-child) { aspect-ratio: 4/3; }
+
+.grid-img {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.grid-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.2s;
+}
+
+.grid-img:hover img {
+  transform: scale(1.03);
+}
+
+.more-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 26px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

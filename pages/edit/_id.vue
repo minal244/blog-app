@@ -33,7 +33,15 @@
       </div>
 
       <!-- Add New Images -->
-      <input type="file" multiple @change="handleFile" />
+      <div
+        class="drop-zone"
+        :class="{ dragging: isDragging }"
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop.prevent="handleDrop"
+      >
+        <p>Drag & drop images here or <label class="file-label">browse<input type="file" multiple @change="handleFile" /></label></p>
+      </div>
 
       <div v-if="newImages.length" class="image-previews">
         <div v-for="(img, i) in newImages" :key="'new-' + i" class="preview-item">
@@ -74,7 +82,8 @@ export default {
       content: '',
       existingImages: [],
       newImages: [],
-      loading: false
+      loading: false,
+      isDragging: false
     }
   },
 
@@ -129,10 +138,10 @@ export default {
     getError,
     previewUrl,
 
-    handleFile(e) {
+    validateAndAddImages(files) {
       const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
       const maxSize = 5 * 1024 * 1024
-      const valid = Array.from(e.target.files).filter(f => {
+      const valid = Array.from(files).filter(f => {
         if (!allowed.includes(f.type)) {
           this.$toast.error(`${f.name} is not a supported image type`)
           return false
@@ -144,6 +153,15 @@ export default {
         return true
       })
       this.newImages = [...this.newImages, ...valid]
+    },
+
+    handleFile(e) {
+      this.validateAndAddImages(e.target.files)
+    },
+
+    handleDrop(e) {
+      this.isDragging = false
+      this.validateAndAddImages(e.dataTransfer.files)
     },
 
     removeExisting(i) {
@@ -194,3 +212,25 @@ export default {
 }
 </script>
 
+<style scoped>
+.drop-zone {
+  border: 2px dashed #aaa;
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.drop-zone.dragging {
+  border-color: #4f46e5;
+  background: #eef2ff;
+}
+.file-label {
+  color: #4f46e5;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.file-label input[type='file'] {
+  display: none;
+}
+</style>

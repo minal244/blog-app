@@ -1,4 +1,5 @@
 <template>
+  <div>
   <div class="container">
 
     <nuxt-link to="/view" class="back-link">← Back to Blogs</nuxt-link>
@@ -16,14 +17,15 @@
           <span v-if="post.updated_at" class="edited-tag">• Edited</span>
         </p>
 
-        <div class="images" v-if="postImages.length">
-          <img
+        <div v-if="postImages.length" class="image-grid" :class="gridClass">
+          <div
             v-for="(src, i) in postImages"
             :key="i"
-            :src="src"
-            class="post-image"
+            class="grid-img"
             @click="openImage(src)"
-          />
+          >
+            <img :src="src" />
+          </div>
         </div>
 
         <ImageModal
@@ -91,6 +93,19 @@
     <p v-else class="centered-state">Post not found.</p>
 
   </div>
+
+  <!-- Custom confirm dialog -->
+  <div v-if="confirmCommentId" class="confirm-backdrop" @click.self="confirmCommentId = null">
+    <div class="confirm-box">
+      <p>Delete this comment?</p>
+      <div class="confirm-actions">
+        <button class="confirm-cancel" @click="confirmCommentId = null">Cancel</button>
+        <button class="confirm-ok" @click="confirmDelete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  </div>
 </template>
 
 <script>
@@ -108,7 +123,8 @@ export default {
       showModal: false,
       selectedImage: null,
       comments: [],
-      newComment: ''
+      newComment: '',
+      confirmCommentId: null
     }
   },
 
@@ -151,8 +167,13 @@ export default {
       }
     },
 
-    async deleteComment(commentId) {
-      if (!window.confirm('Delete this comment?')) return
+    deleteComment(commentId) {
+      this.confirmCommentId = commentId
+    },
+
+    async confirmDelete() {
+      const commentId = this.confirmCommentId
+      this.confirmCommentId = null
       try {
         await this.$axios.delete(`/posts/${this.post.id}/comments/${commentId}`)
         this.comments = this.comments.filter(c => c.id !== commentId)
@@ -184,6 +205,15 @@ export default {
       } catch {
         return [this.post.image]
       }
+    },
+
+    gridClass() {
+      const n = this.postImages.length
+      if (n === 1) return 'grid-1'
+      if (n === 2) return 'grid-2'
+      if (n === 3) return 'grid-3'
+      if (n === 4) return 'grid-4plus'
+      return 'grid-many'
     },
 
     formattedDate() {
@@ -225,19 +255,47 @@ export default {
   font-style: italic;
 }
 
-.images {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+.image-grid {
+  display: grid;
+  gap: 3px;
   margin-bottom: 20px;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.post-image {
-  width: 100%;
-  max-height: 400px;
-  object-fit: cover;
-  border-radius: 8px;
+.image-grid.grid-1 { grid-template-columns: 1fr; }
+.image-grid.grid-1 .grid-img { aspect-ratio: 16/9; }
+
+.image-grid.grid-2 { grid-template-columns: 1fr 1fr; }
+.image-grid.grid-2 .grid-img { aspect-ratio: 1; }
+
+.image-grid.grid-3 { grid-template-columns: 1fr 1fr; }
+.image-grid.grid-3 .grid-img:first-child { grid-column: 1 / -1; aspect-ratio: 16/9; }
+.image-grid.grid-3 .grid-img:not(:first-child) { aspect-ratio: 4/3; }
+
+.image-grid.grid-4plus { grid-template-columns: 2fr 1fr; }
+.image-grid.grid-4plus .grid-img:first-child { grid-row: span 3; }
+.image-grid.grid-4plus .grid-img:not(:first-child) { aspect-ratio: 4/3; }
+
+.image-grid.grid-many { grid-template-columns: 1fr 1fr; }
+.image-grid.grid-many .grid-img { aspect-ratio: 4/3; }
+
+.grid-img {
+  position: relative;
+  overflow: hidden;
   cursor: pointer;
+}
+
+.grid-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.2s;
+}
+
+.grid-img:hover img {
+  transform: scale(1.03);
 }
 
 .content {
@@ -323,5 +381,63 @@ export default {
   font-size: 14px;
   line-height: 1.5;
   white-space: pre-wrap;
+}
+
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirm-box {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 300px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.confirm-box p {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.confirm-cancel {
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.confirm-cancel:hover {
+  background: #e5e7eb;
+}
+
+.confirm-ok {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.confirm-ok:hover {
+  background: #dc2626;
 }
 </style>
