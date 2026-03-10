@@ -65,7 +65,8 @@ router.post('/', authMiddleware, upload.array('images', 10), (req, res) => {
 router.get('/mine', authMiddleware, (req, res) => {
 
   db.all(
-    `SELECT * FROM posts WHERE username = ? ORDER BY created_at DESC`,
+    `SELECT p.*, (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as like_count
+     FROM posts p WHERE p.username = ? ORDER BY p.created_at DESC`,
     [req.user.username],
     (err, rows) => {
 
@@ -82,7 +83,8 @@ router.get('/mine', authMiddleware, (req, res) => {
 router.get('/', (req, res) => {
 
   db.all(
-    `SELECT * FROM posts ORDER BY created_at DESC`,
+    `SELECT p.*, (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as like_count
+     FROM posts p ORDER BY p.created_at DESC`,
     [],
     (err, rows) => {
 
@@ -128,7 +130,7 @@ router.put('/:id', authMiddleware, upload.array('newImages', 10), (req, res) => 
 
   db.run(
     `UPDATE posts
-     SET title = ?, content = ?, image = ?
+     SET title = ?, content = ?, image = ?, updated_at = CURRENT_TIMESTAMP
      WHERE id = ? AND username = ?`,
     [req.body.title, req.body.content, imagePaths, req.params.id, req.user.username],
     function(err) {
@@ -138,6 +140,82 @@ router.put('/:id', authMiddleware, upload.array('newImages', 10), (req, res) => 
       }
 
       res.json({ message: 'Updated' })
+    }
+  )
+})
+
+// GET LIKE STATUS
+router.get('/:id/like-status', authMiddleware, (req, res) => {
+  db.get(
+    `SELECT id FROM likes WHERE post_id = ? AND username = ?`,
+    [req.params.id, req.user.username],
+    (err, row) => {
+      res.json({ liked: !!row })
+    }
+  )
+})
+
+// TOGGLE LIKE
+router.post('/:id/like', authMiddleware, (req, res) => {
+  const { id } = req.params
+  const { username } = req.user
+
+  db.get(`SELECT id FROM likes WHERE post_id = ? AND username = ?`, [id, username], (err, row) => {
+    if (row) {
+      db.run(`DELETE FROM likes WHERE post_id = ? AND username = ?`, [id, username], () => {
+        db.get(`SELECT COUNT(*) as count FROM likes WHERE post_id = ?`, [id], (err, r) => {
+          res.json({ liked: false, count: r.count })
+        })
+      })
+    } else {
+      db.run(`INSERT INTO likes (post_id, username) VALUES (?, ?)`, [id, username], () => {
+        db.get(`SELECT COUNT(*) as count FROM likes WHERE post_id = ?`, [id], (err, r) => {
+          res.json({ liked: true, count: r.count })
+        })
+      })
+    }
+  })
+})
+
+// GET COMMENTS
+router.get('/:id/comments', (req, res) => {
+  db.all(
+    `SELECT * FROM comments WHERE post_id = ? ORDER BY created_at ASC`,
+    [req.params.id],
+    (err, rows) => {
+      if (err) return res.status(500).json({ message: 'Error fetching comments' })
+      res.json(rows)
+    }
+  )
+})
+
+// ADD COMMENT
+router.post('/:id/comments', authMiddleware, (req, res) => {
+  const { content } = req.body
+  if (!content || !content.trim()) {
+    return res.status(400).json({ message: 'Comment cannot be empty' })
+  }
+
+  db.run(
+    `INSERT INTO comments (post_id, username, content) VALUES (?, ?, ?)`,
+    [req.params.id, req.user.username, content.trim()],
+    function(err) {
+      if (err) return res.status(500).json({ message: 'Error saving comment' })
+      db.get(`SELECT * FROM comments WHERE id = ?`, [this.lastID], (err, row) => {
+        res.json(row)
+      })
+    }
+  )
+})
+
+// DELETE COMMENT
+router.delete('/:id/comments/:commentId', authMiddleware, (req, res) => {
+  db.run(
+    `DELETE FROM comments WHERE id = ? AND username = ?`,
+    [req.params.commentId, req.user.username],
+    function(err) {
+      if (this.changes === 0) return res.status(403).json({ message: 'Forbidden' })
+      res.json({ message: 'Deleted' })
     }
   )
 })
