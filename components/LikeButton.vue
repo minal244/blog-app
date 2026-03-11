@@ -51,7 +51,7 @@ export default {
 .like-btn {
   background: none;
   border: 1px solid #ccc;
-  color: #6b7280;
+  color: var(--color-muted);
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 14px;

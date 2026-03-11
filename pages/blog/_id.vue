@@ -247,7 +247,7 @@ export default {
 
 .meta {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--color-muted);
   margin-bottom: 20px;
 }
 
@@ -314,15 +314,15 @@ export default {
 .share-btn {
   background: none;
   border: 1px solid #ccc;
-  color: #6b7280;
+  color: var(--color-muted);
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 14px;
 }
 
 .share-btn:hover {
-  border-color: #2f8274;
-  color: #2f8274;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
   background: none;
 }
 
@@ -358,7 +358,7 @@ export default {
 
 .comment-date {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-muted);
   flex: 1;
 }
 
@@ -373,7 +373,7 @@ export default {
 }
 
 .delete-comment:hover {
-  color: #ef4444;
+  color: var(--color-danger);
   background: none;
 }
 
@@ -429,7 +429,7 @@ export default {
 }
 
 .confirm-ok {
-  background: #ef4444;
+  background: var(--color-danger);
   color: white;
   border: none;
   padding: 8px 20px;
@@ -438,6 +438,6 @@ export default {
 }
 
 .confirm-ok:hover {
-  background: #dc2626;
+  background: var(--color-danger-dark);
 }
 </style>

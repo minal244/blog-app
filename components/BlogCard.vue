@@ -151,7 +151,7 @@ export default {
 
 .meta {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-muted);
   margin-bottom: 10px;
 }
 
@@ -165,7 +165,7 @@ export default {
 
 .read-more {
   font-size: 13px;
-  color: #2f8274;
+  color: var(--color-primary);
   margin-left: 4px;
   white-space: nowrap;
 }
@@ -187,15 +187,15 @@ export default {
 .share-btn {
   background: none;
   border: 1px solid #ccc;
-  color: #6b7280;
+  color: var(--color-muted);
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 14px;
 }
 
 .share-btn:hover {
-  border-color: #2f8274;
-  color: #2f8274;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
   background: none;
 }
 
@@ -206,11 +206,11 @@ export default {
 }
 
 .delete {
-  background: #ef4444;
+  background: var(--color-danger);
 }
 
 .delete:hover {
-  background: #dc2626;
+  background: var(--color-danger-dark);
 }
 
 .image-grid {

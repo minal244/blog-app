@@ -117,7 +117,7 @@ export default {
 
 .login-prompt {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--color-muted);
   margin-bottom: 8px;
 }
 
@@ -157,13 +157,13 @@ export default {
 }
 
 .delete-comment:hover {
-  color: #ef4444;
+  color: var(--color-danger);
   background: none;
 }
 
 .view-all {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--color-muted);
   font-weight: 400;
   display: block;
   margin-top: 4px;

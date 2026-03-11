@@ -5,14 +5,23 @@
 
     <form @submit.prevent="updatePassword">
 
+      <!-- Current Password -->
+      <PasswordInput
+        v-model="currentPassword"
+        placeholder="Current Password"
+        :visible="showPassword"
+        @blur="$v.currentPassword.$touch()"
+      />
+      <FormError :message="getError($v.currentPassword)" />
+
       <!-- New Password -->
       <PasswordInput
-        v-model="password"
+        v-model="newPassword"
         placeholder="New Password"
         :visible="showPassword"
-        @blur="$v.password.$touch()"
+        @blur="$v.newPassword.$touch()"
       />
-      <FormError :message="getError($v.password)" />
+      <FormError :message="getError($v.newPassword)" />
 
       <!-- Confirm Password -->
       <PasswordInput
@@ -53,7 +62,8 @@ export default {
 
   data() {
     return {
-      password: '',
+      currentPassword: '',
+      newPassword: '',
       confirmPassword: '',
       showPassword: false
     }
@@ -61,8 +71,9 @@ export default {
 
   validations() {
     return {
-      password: rules.password,
-      confirmPassword: rules.confirmPassword(() => this.password)
+      currentPassword: rules.password,
+      newPassword: rules.password,
+      confirmPassword: rules.confirmPassword(() => this.newPassword)
     }
   },
 
@@ -82,17 +93,20 @@ export default {
       try {
 
         await this.$axios.put('/auth/change-password', {
-          password: this.password
+          currentPassword: this.currentPassword,
+          newPassword: this.newPassword
         })
 
         this.$toast.success('Password updated')
 
-        this.password = ''
+        this.currentPassword = ''
+        this.newPassword = ''
         this.confirmPassword = ''
         this.$v.$reset()
 
-      } catch {
-        this.$toast.error('Error updating password')
+      } catch (err) {
+        const msg = err.response?.data?.message || 'Error updating password'
+        this.$toast.error(msg)
       }
 
     }

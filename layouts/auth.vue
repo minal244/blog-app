@@ -18,7 +18,7 @@ export default {}
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #2f8274, #1a6b82);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-alt));
 }
 
 .auth-container {

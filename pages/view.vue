@@ -122,7 +122,7 @@ export default {
 
 .pagination span {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .search-input {
@@ -137,7 +137,7 @@ export default {
 
 .search-input:focus {
   outline: none;
-  border-color: #2f8274;
+  border-color: var(--color-primary);
 }
 
 .sort-bar {
@@ -146,7 +146,7 @@ export default {
   gap: 10px;
   margin-bottom: 20px;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .sort-bar select {

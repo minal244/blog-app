@@ -77,12 +77,12 @@ export default {
 }
 
 .logout-btn {
-  background: #ef4444;
+  background: var(--color-danger);
   padding: 8px 14px;
   border-radius: 6px;
 }
 
 .logout-btn:hover {
-  background: #dc2626;
+  background: var(--color-danger-dark);
 }
 </style>

@@ -149,10 +149,10 @@ export default {
   display: block;
   text-align: center;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .guest-link:hover {
-  color: #2f8274;
+  color: var(--color-primary);
 }
 </style>

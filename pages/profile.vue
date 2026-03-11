@@ -188,12 +188,12 @@ h1 {
 .stat-value {
   font-size: 28px;
   font-weight: 700;
-  color: #2f8274;
+  color: var(--color-primary);
 }
 
 .stat-label {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .most-popular {
@@ -210,7 +210,7 @@ h1 {
 
 .most-popular-label {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-muted);
   white-space: nowrap;
 }
 
@@ -226,18 +226,18 @@ h1 {
 }
 
 .most-popular-title:hover {
-  color: #2f8274;
+  color: var(--color-primary);
 }
 
 .most-popular-meta {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-muted);
   white-space: nowrap;
 }
 
 .activity-label {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--color-muted);
   margin-bottom: 12px;
 }
 
@@ -265,7 +265,7 @@ h1 {
 
 .bar {
   width: 100%;
-  background: #2f8274;
+  background: var(--color-primary);
   border-radius: 4px 4px 0 0;
   min-height: 3px;
   transition: height 0.3s ease;

@@ -153,7 +153,7 @@ export default {
         this.$router.push('/dashboard')
 
       } catch {
-        this.$toast.error('User already exists')
+        this.$toast.error('Email is already registered')
       } finally {
         this.loading = false
       }

@@ -150,11 +150,11 @@ export default {
 
 .subtitle {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .create-btn {
-  background: #2f8274;
+  background: var(--color-primary);
   padding: 10px 18px;
   border-radius: 6px;
   color: white;
@@ -162,7 +162,7 @@ export default {
 }
 
 .create-btn:hover {
-  background: #236358;
+  background: var(--color-primary-dark);
 }
 
 .search-input {
@@ -177,7 +177,7 @@ export default {
 
 .search-input:focus {
   outline: none;
-  border-color: #2f8274;
+  border-color: var(--color-primary);
 }
 
 .sort-bar {
@@ -186,7 +186,7 @@ export default {
   gap: 10px;
   margin-bottom: 20px;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .sort-bar select {
@@ -243,7 +243,7 @@ export default {
 }
 
 .confirm-btn {
-  background: #ef4444;
+  background: var(--color-danger);
   color: white;
   border: none;
   padding: 8px 18px;
@@ -252,7 +252,7 @@ export default {
 }
 
 .confirm-btn:hover {
-  background: #dc2626;
+  background: var(--color-danger-dark);
 }
 
 </style>
